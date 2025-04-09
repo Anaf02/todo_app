@@ -1,30 +1,47 @@
-version: '3.8'
+version: '3.8' # Specify docker-compose version
 
 services:
+  # Database Service (PostgreSQL)
   db:
     image: postgres:latest
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
+    networks:
+      - default
 
+  # Web Service (Rails Application)
   web:
     build: .
     depends_on:
       - db
     volumes:
       - .:/app
+      # Use a named volume to cache gems, speeding up subsequent bundle installs
+      - bundle_cache:/usr/local/bundle
     ports:
       - "3000:3000"
     environment:
       RAILS_ENV: ${RAILS_ENV}
-      DATABASE_URL: ${DATABASE_URL}
-    command: ["rails", "server", "-b", "0.0.0.0"]
+      RAILS_LOG_TO_STDOUT: "true" # Log to console for easy viewing with 'docker-compose logs'
+      # Database connection details (match 'db' service)
+      DATABASE_HOST: ${DATABASE_HOST} # Use the service name 'db' as the hostname
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME} # Default PostgreSQL user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Use the same password as defined in the 'db' service
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'" # Ensure server.pid is removed before starting
+    networks:
+      - default
 
+  # Define named volumes
 volumes:
-  postgres_data:
+  postgres_data: # Volume for persisting PostgreSQL data
+  bundle_cache:  # Volume for caching gems
+
+networks:
+  default:
+    driver: bridge
