@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   root 'welcome#index'
   get "/welcome", to: "welcome#index"
   resources :todos, only: [:create, :index, :destroy, :update]
+  delete '/todos', to: 'todos#delete_all'
   # Defines the root path route ("/")
   # root "posts#index"
 end
