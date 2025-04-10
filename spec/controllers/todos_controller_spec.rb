@@ -6,6 +6,8 @@ RSpec.describe TodosController, type: :controller do
     Todo.delete_all
   end
 
+  let(:parsed_body) { JSON.parse(response.body) }
+
   describe "POST #create" do
     subject { post :create, params: params }
 
@@ -15,23 +17,23 @@ RSpec.describe TodosController, type: :controller do
       subject
 
       expect(response).to have_http_status(:created)
-      expect(JSON.parse(response.body)['name']).to eq("Task1")
-      expect(JSON.parse(response.body)['completed']).to eq(true)
+      expect(parsed_body['name']).to eq("Task1")
+      expect(parsed_body['completed']).to eq(true)
     end
 
-    context 'when completed field is empty' do
+    context "when 'completed' field is empty" do
       let(:params) { { todo: { name: "Task2" } } }
 
       it "should create todo successfully" do
         subject
 
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['name']).to eq("Task2")
-        expect(JSON.parse(response.body)['completed']).to eq(false)
+        expect(parsed_body['name']).to eq("Task2")
+        expect(parsed_body['completed']).to eq(false)
       end
     end
 
-    context 'when name field is empty' do
+    context "when 'name' field is empty" do
       let(:params) { {} }
 
       it "should return unprocessable entity" do
@@ -43,76 +45,104 @@ RSpec.describe TodosController, type: :controller do
   end
 
   describe "GET #index" do
+    subject { get :index }
+
     it "should list no todos when the todos list is empty" do
-      get :index
+      subject
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['todos']).to be_empty
+      expect(parsed_body['todos']).to be_empty
     end
 
-    it "should list all todos when the list is not empty" do
-      post :create, params: { todo: { name: "Task1", completed: true } }
-      post :create, params: { todo: { name: "Task2" } }
+    context "when the list is not empty" do
+      before do
+        Todo.create(name: "Task1", completed: true)
+        Todo.create(name: "Task2")
+      end
 
-      get :index
+      it "should list all todos" do
+        subject
 
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['todos'].length).to eq(2)
-      expect(JSON.parse(response.body)['todos'][0]['name']).to eq("Task1")
-      expect(JSON.parse(response.body)['todos'][0]['completed']).to eq(true)
-      expect(JSON.parse(response.body)['todos'][1]['name']).to eq("Task2")
-      expect(JSON.parse(response.body)['todos'][1]['completed']).to eq(false)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['todos'].length).to eq(2)
+        expect(parsed_body['todos'].first['name']).to eq("Task1")
+        expect(parsed_body['todos'][0]['completed']).to eq(true)
+        expect(parsed_body['todos'][1]['name']).to eq("Task2")
+        expect(parsed_body['todos'][1]['completed']).to eq(false)
+      end
     end
   end
 
   describe "PUT #todos" do
-    it "should update book successfully" do
-      post :create, params: { todo: { name: "Task1", completed: true } }
-      todo_id = JSON.parse(response.body)['id']
+    let!(:todo) { Todo.create(name: "Task1") }
+    subject { put :update, params: params }
 
-      put :update, params: { id: todo_id, todo: { name: "Updated task", completed: false } }
+    context "when the todo exists" do
+      let(:params) { { id: todo.id, todo: { name: "Updated task", completed: true } } }
 
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['name']).to eq("Updated task")
-      expect(JSON.parse(response.body)['completed']).to eq(false)
+      it "updates the todo successfully" do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['name']).to eq("Updated task")
+        expect(parsed_body['completed']).to eq(true)
+      end
     end
 
-    it "should return not found when the todo doesn't exist" do
-      put :update, params: { id: 100, todo: { name: "Task", completed: true } }
+    context "when the todo does not exist" do
+      let(:params) { { id: 100, todo: { name: "Task", completed: true } } }
+      subject { put :update, params: params }
 
-      expect(response).to have_http_status(:not_found)
-    end
+      it "returns not found" do
+        subject
 
-  end
-
-  describe "DELETE #destroy" do
-    it "should delete todo successfully" do
-      post :create, params: { todo: { name: "Task1", completed: true } }
-      todo_id = JSON.parse(response.body)['id']
-
-      delete :destroy, params: { id: todo_id }
-
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['message']).to eq("Todo deleted")
-    end
-
-    it "should return not found when the todo doesn't exist" do
-      delete :destroy, params: { id: 100 }
-
-      expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 
-  describe "DELETE #delete_all" do
-    it "should delete all todos" do
-      post :create, params: { todo: { name: "Task1", completed: true } }
-      post :create, params: { todo: { name: "Task2" } }
+  context "when the list is not empty" do
+    before do
+      Todo.create(name: "Task1", completed: true)
+      Todo.create(name: "Task2")
+    end
 
-      delete :delete_all
+    describe "DELETE #destroy" do
+      let!(:todo) { Todo.create(name: "Task3", completed: false) }
+      subject { delete :destroy, params: params }
 
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['message']).to eq("All todos have been deleted")
-      expect(Todo.count).to eq(0)
+      context "when the todo exists" do
+        let(:params) { { id: todo.id } }
+
+        it "deletes the todo successfully" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['message']).to eq("Todo deleted")
+        end
+      end
+
+      context "when todo doesn't exist" do
+        let(:params) { { id: 100 } }
+        
+        it "returns not found" do
+          subject
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe "DELETE #delete_all" do
+      subject { delete :delete_all }
+
+      it "should delete all todos" do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['message']).to eq("All todos have been deleted")
+        expect(Todo.count).to eq(0)
+      end
     end
   end
 end
