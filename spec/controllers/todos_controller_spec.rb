@@ -56,8 +56,8 @@ RSpec.describe TodosController, type: :controller do
 
     context "when the list is not empty" do
       before do
-        Todo.create(name: "Task1", completed: true)
-        Todo.create(name: "Task2")
+        create(:todo, :completed, name: "Task1")
+        create(:todo, name: "Task2")
       end
 
       it "should list all todos" do
@@ -74,7 +74,7 @@ RSpec.describe TodosController, type: :controller do
   end
 
   describe "PUT #todos" do
-    let!(:todo) { Todo.create(name: "Task1") }
+    let!(:todo) { create(:todo, name: "Task1") }
     subject { put :update, params: params }
 
     context "when the todo exists" do
@@ -103,12 +103,12 @@ RSpec.describe TodosController, type: :controller do
 
   context "when the list is not empty" do
     before do
-      Todo.create(name: "Task1", completed: true)
-      Todo.create(name: "Task2")
+      create(:todo, :completed, name: "Task1")
+      create(:todo, name: "Task2")
     end
 
     describe "DELETE #destroy" do
-      let!(:todo) { Todo.create(name: "Task3", completed: false) }
+      let!(:todo) { create(:todo, name: "Task3") }
       subject { delete :destroy, params: params }
 
       context "when the todo exists" do
@@ -124,7 +124,7 @@ RSpec.describe TodosController, type: :controller do
 
       context "when todo doesn't exist" do
         let(:params) { { id: 100 } }
-        
+
         it "returns not found" do
           subject
 
