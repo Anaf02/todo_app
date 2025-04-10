@@ -7,26 +7,38 @@ RSpec.describe TodosController, type: :controller do
   end
 
   describe "POST #create" do
+    subject { post :create, params: params }
+
+    let(:params) { { todo: { name: "Task1", completed: true } } }
+
     it "should create todo successfully" do
-      post :create, params: { todo: { name: "Task1", completed: true } }
+      subject
 
       expect(response).to have_http_status(:created)
       expect(JSON.parse(response.body)['name']).to eq("Task1")
       expect(JSON.parse(response.body)['completed']).to eq(true)
     end
 
-    it "should create todo successfully when the 'completed' field is empty" do
-      post :create, params: { todo: { name: "Task2" } }
+    context 'when completed field is empty' do
+      let(:params) { { todo: { name: "Task2" } } }
 
-      expect(response).to have_http_status(:created)
-      expect(JSON.parse(response.body)['name']).to eq("Task2")
-      expect(JSON.parse(response.body)['completed']).to eq(false)
+      it "should create todo successfully" do
+        subject
+
+        expect(response).to have_http_status(:created)
+        expect(JSON.parse(response.body)['name']).to eq("Task2")
+        expect(JSON.parse(response.body)['completed']).to eq(false)
+      end
     end
 
-    it "should return unprocessable entity when the 'name' field is empty" do
-      post :create, params: { todo: {} }
+    context 'when name field is empty' do
+      let(:params) { {} }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      it "should return unprocessable entity" do
+        subject
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
   end
 
