@@ -41,7 +41,7 @@ class TodosController < ApplicationController
   def active_todos
     active_todo_counter = ActiveTodoCounter.new
     @active_todos = active_todo_counter.count(Todo.all)
-    render json: { message: active_todo_counter.message }
+    render json: { message: active_todo_counter.message }, status: :ok
   end
 
   private
