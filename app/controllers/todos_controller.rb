@@ -38,6 +38,12 @@ class TodosController < ApplicationController
     render json: { message: "Todo deleted" }, status: :ok
   end
 
+  def active_todos
+    active_todo_counter = ActiveTodoCounter.new
+    @active_todos = active_todo_counter.count(Todo.all)
+    render json: { message: active_todo_counter.message }
+  end
+
   private
 
   def todo_params
@@ -47,6 +53,7 @@ class TodosController < ApplicationController
   def handle_parameter_missing(exception)
     render json: { error: exception.message }, status: :unprocessable_entity
   end
+
   def handle_record_not_found(exception)
     render json: { error: exception.message }, status: :not_found
   end

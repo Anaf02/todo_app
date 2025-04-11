@@ -143,6 +143,7 @@ RSpec.describe TodosController, type: :controller do
         expect(parsed_body['message']).to eq("All todos have been deleted")
         expect(Todo.count).to eq(0)
       end
+
     end
   end
 end
