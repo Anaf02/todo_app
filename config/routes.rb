@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get '/welcome', to: 'welcome#index'
   resources :todos, only: [:create, :index, :destroy, :update]
   delete '/todos', to: 'todos#delete_all'
-  get '/active_todos', to: 'todos#active_todos'
+  get '/active_todos_count', to: 'todos#active_todos_count'
   # Defines the root path route ("/")
   # root "posts#index"
 end

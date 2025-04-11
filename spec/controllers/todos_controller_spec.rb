@@ -151,7 +151,7 @@ RSpec.describe TodosController, type: :controller do
       create(:todo, :completed, name: "Task1")
     end
 
-    subject { get :active_todos }
+    subject { get :active_todos_count }
 
     context "when there are active todos" do
       before do
