@@ -15,7 +15,18 @@ class TodosController < ApplicationController
 
   def index
     @todos = Todo.all
-    render json: { todos: @todos }
+    active_todo_counter = ActiveTodoCounter.new
+    active_count = active_todo_counter.count(@todos)
+
+    render json: {
+      todos: @todos,
+      metadata: {
+        active: {
+          count: active_count,
+          formatted_message: active_todo_counter.message
+        }
+      }
+    }
   end
 
   def update
@@ -47,6 +58,7 @@ class TodosController < ApplicationController
   def handle_parameter_missing(exception)
     render json: { error: exception.message }, status: :unprocessable_entity
   end
+
   def handle_record_not_found(exception)
     render json: { error: exception.message }, status: :not_found
   end
