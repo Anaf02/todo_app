@@ -14,7 +14,7 @@ class TodosController < ApplicationController
   end
 
   def index
-    @todos = Todo.all
+    @todos = Todo.filter(filtering_params)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count(@todos)
 
@@ -53,6 +53,10 @@ class TodosController < ApplicationController
 
   def todo_params
     params.require(:todo).permit(:name, :completed)
+  end
+
+  def filtering_params
+    params.slice(:completed)
   end
 
   def handle_parameter_missing(exception)
