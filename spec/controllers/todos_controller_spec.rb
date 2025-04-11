@@ -47,11 +47,13 @@ RSpec.describe TodosController, type: :controller do
   describe "GET #index" do
     subject { get :index }
 
-    it "should list no todos when the todos list is empty" do
-      subject
+    context "when the list is empty" do
+      it "should list no todos" do
+        subject
 
-      expect(response).to have_http_status(:ok)
-      expect(parsed_body['todos']).to be_empty
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['todos']).to be_empty
+      end
     end
 
     context "when the list is not empty" do
@@ -69,6 +71,43 @@ RSpec.describe TodosController, type: :controller do
         expect(parsed_body['todos'][0]['completed']).to eq(true)
         expect(parsed_body['todos'][1]['name']).to eq("Task2")
         expect(parsed_body['todos'][1]['completed']).to eq(false)
+      end
+
+      context "when there is only 1 active todo" do
+        it "metadata should return correct active count and 1 item left message" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['metadata']['active']['formatted_message']).to eq("1 item left!")
+          expect(parsed_body['metadata']['active']['count']).to eq(1)
+        end
+      end
+
+      context "when there are more than 1 active todos" do
+        before do
+          create(:todo, name: "Task3")
+        end
+
+        it "metadata should return correct active count and message" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['metadata']['active']['formatted_message']).to eq("2 items left!")
+          expect(parsed_body['metadata']['active']['count']).to eq(2)
+        end
+      end
+    end
+
+    context "when there are no active todos" do
+      before do
+        create(:todo, :completed, name: "Task1")
+      end
+      it "should return 0 items left message" do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_body['metadata']['active']['formatted_message']).to eq("0 items left!")
+        expect(parsed_body['metadata']['active']['count']).to eq(0)
       end
     end
   end
@@ -142,51 +181,6 @@ RSpec.describe TodosController, type: :controller do
         expect(response).to have_http_status(:ok)
         expect(parsed_body['message']).to eq("All todos have been deleted")
         expect(Todo.count).to eq(0)
-      end
-    end
-  end
-
-  describe "GET #active_todos" do
-    before do
-      create(:todo, :completed, name: "Task1")
-    end
-
-    subject { get :active_todos_count }
-
-    context "when there are active todos" do
-      before do
-        create(:todo, name: "Task2")
-      end
-
-      context "when there are more than 1 active todos" do
-        before do
-          create(:todo, name: "Task3")
-        end
-
-        it "should return the message with the exact number of active todos" do
-          subject
-
-          expect(response).to have_http_status(:ok)
-          expect(parsed_body['message']).to eq("2 items left!")
-        end
-      end
-
-      context "when there is only 1 active todos" do
-        it "should return 1 item left message" do
-          subject
-
-          expect(response).to have_http_status(:ok)
-          expect(parsed_body['message']).to eq("1 item left!")
-        end
-      end
-    end
-
-    context "when there are no active todos" do
-      it "should return 0 items left message" do
-        subject
-
-        expect(response).to have_http_status(:ok)
-        expect(parsed_body['message']).to eq("0 items left!")
       end
     end
   end

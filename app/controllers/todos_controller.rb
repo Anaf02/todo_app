@@ -15,7 +15,18 @@ class TodosController < ApplicationController
 
   def index
     @todos = Todo.all
-    render json: { todos: @todos }
+    active_todo_counter = ActiveTodoCounter.new
+    active_count = active_todo_counter.count(@todos)
+
+    render json: {
+      todos: @todos,
+      metadata: {
+        active: {
+          count: active_count,
+          formatted_message: active_todo_counter.message
+        }
+      }
+    }
   end
 
   def update
