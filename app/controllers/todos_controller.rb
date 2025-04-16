@@ -57,7 +57,7 @@ class TodosController < ApplicationController
   end
 
   def filtering_params
-    params.slice(:completed)
+    params.slice(:completed, :name)
   end
 
   def delete_filtering_params

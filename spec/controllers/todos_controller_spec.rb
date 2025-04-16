@@ -205,6 +205,53 @@ RSpec.describe TodosController, type: :controller do
         end
       end
     end
+
+    context "with filter name=" do
+      let(:params) { { name: 'buy' } }
+
+      context "when the list is not empty" do
+        before do
+          create(:todo, :completed, name: "Task1")
+          create(:todo, name: "Buy chocolate")
+          create(:todo, :completed, name: "Buy water")
+        end
+
+        it "should list all todos that contain the specified string in their name" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos'].length).to eq(2)
+          expect(parsed_body['todos'].first['name']).to eq("Buy chocolate")
+          expect(parsed_body['todos'].first['completed']).to eq(false)
+          expect(parsed_body['todos'].second['name']).to eq("Buy water")
+          expect(parsed_body['todos'].second['completed']).to eq(true)
+        end
+
+        context "when there are no matching todos" do
+          let(:params) { { name: 'shopping' } }
+          it "should return no todos" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['todos'].length).to eq(0)
+            expect(parsed_body['todos']).to be_empty
+          end
+        end
+
+        context "when cascading with completed filter" do
+          let(:params) { { name: 'buy', completed: 'false' } }
+          it "should return all todos that match both conditions" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['todos'].length).to eq(1)
+            expect(parsed_body['todos'].first['name']).to eq("Buy chocolate")
+            expect(parsed_body['todos'].first['completed']).to eq(false)
+          end
+        end
+      end
+    end
+
   end
 
   describe "PUT #todos" do
