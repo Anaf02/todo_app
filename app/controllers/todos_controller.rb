@@ -39,8 +39,9 @@ class TodosController < ApplicationController
   end
 
   def delete_all
-    @todos = Todo.destroy_all
-    render json: { message: "All todos have been deleted" }, status: :ok
+    deleted_count = Todo.filter(delete_filtering_params).destroy_all.size
+
+    render json: { message: "#{deleted_count} todo(s) have been deleted" }, status: :ok
   end
 
   def destroy
@@ -57,6 +58,16 @@ class TodosController < ApplicationController
 
   def filtering_params
     params.slice(:completed)
+  end
+
+  def delete_filtering_params
+    return {} unless params.key?(:completed)
+
+    if params[:completed] == "true"
+      { completed: true }
+    else
+      raise ActionController::ParameterMissing.new(:completed)
+    end
   end
 
   def handle_parameter_missing(exception)
