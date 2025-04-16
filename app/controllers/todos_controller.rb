@@ -7,7 +7,7 @@ class TodosController < ApplicationController
   def create
     todo = Todo.create(todo_params)
     if todo.persisted?
-      render json: todo, status: :created
+      render json: TodoSerializer.new(todo).as_json, status: :created
     else
       render json: { error: todo.errors.full_messages }, status: :unprocessable_entity
     end
@@ -16,10 +16,10 @@ class TodosController < ApplicationController
   def index
     @todos = Todo.filter(filtering_params)
     active_todo_counter = ActiveTodoCounter.new
-    active_count = active_todo_counter.count(@todos)
+    active_count = active_todo_counter.count(Todo.all)
 
     render json: {
-      todos: @todos,
+      todos: @todos.map { |todo| TodoSerializer.new(todo).as_json },
       metadata: {
         active: {
           count: active_count,
@@ -32,7 +32,7 @@ class TodosController < ApplicationController
   def update
     @todo = Todo.find(params[:id])
     if @todo.update(todo_params)
-      render json: @todo, status: :ok
+      render json: TodoSerializer.new(@todo).as_json, status: :ok
     else
       render json: { error: @todo.errors.full_messages }, status: :not_found
     end
