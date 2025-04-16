@@ -45,69 +45,164 @@ RSpec.describe TodosController, type: :controller do
   end
 
   describe "GET #index" do
-    subject { get :index }
+    subject { get :index, params: params }
 
     context "when the list is empty" do
-      it "should list no todos" do
-        subject
+      context "without filters" do
+        let(:params) { {} }
 
-        expect(response).to have_http_status(:ok)
-        expect(parsed_body['todos']).to be_empty
-      end
-    end
-
-    context "when the list is not empty" do
-      before do
-        create(:todo, :completed, name: "Task1")
-        create(:todo, name: "Task2")
-      end
-
-      it "should list all todos" do
-        subject
-
-        expect(response).to have_http_status(:ok)
-        expect(parsed_body['todos'].length).to eq(2)
-        expect(parsed_body['todos'].first['name']).to eq("Task1")
-        expect(parsed_body['todos'][0]['completed']).to eq(true)
-        expect(parsed_body['todos'][1]['name']).to eq("Task2")
-        expect(parsed_body['todos'][1]['completed']).to eq(false)
-      end
-
-      context "when there is only 1 active todo" do
-        it "metadata should return correct active count and 1 item left message" do
+        it "should list no todos" do
           subject
 
           expect(response).to have_http_status(:ok)
-          expect(parsed_body['metadata']['active']['formatted_message']).to eq("1 item left!")
-          expect(parsed_body['metadata']['active']['count']).to eq(1)
+          expect(parsed_body['todos']).to be_empty
         end
       end
 
-      context "when there are more than 1 active todos" do
+      context "with filter completed=false" do
+        let(:params) { { completed: 'false' } }
+
+        it "returns an empty list" do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos']).to be_empty
+        end
+      end
+
+      context "with filter completed=true" do
+        let(:params) { { completed: 'true' } }
+
+        it "returns an empty list" do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos']).to be_empty
+        end
+      end
+
+    end
+
+    context "without filters" do
+      let(:params) { {} }
+
+      context "when the list is not empty" do
         before do
-          create(:todo, name: "Task3")
+          create(:todo, :completed, name: "Task1")
+          create(:todo, name: "Task2")
         end
 
-        it "metadata should return correct active count and message" do
+        it "should list all todos" do
           subject
 
           expect(response).to have_http_status(:ok)
-          expect(parsed_body['metadata']['active']['formatted_message']).to eq("2 items left!")
-          expect(parsed_body['metadata']['active']['count']).to eq(2)
+          expect(parsed_body['todos'].length).to eq(2)
+          expect(parsed_body['todos'].first['name']).to eq("Task1")
+          expect(parsed_body['todos'][0]['completed']).to eq(true)
+          expect(parsed_body['todos'][1]['name']).to eq("Task2")
+          expect(parsed_body['todos'][1]['completed']).to eq(false)
+        end
+
+        context "when there is only 1 active todo" do
+          it "metadata should return correct active count and 1 item left message" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['metadata']['active']['formatted_message']).to eq("1 item left!")
+            expect(parsed_body['metadata']['active']['count']).to eq(1)
+          end
+        end
+
+        context "when there are more than 1 active todos" do
+          before do
+            create(:todo, name: "Task3")
+          end
+
+          it "metadata should return correct active count and message" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['metadata']['active']['formatted_message']).to eq("2 items left!")
+            expect(parsed_body['metadata']['active']['count']).to eq(2)
+          end
+        end
+      end
+
+      context "when there are no active todos" do
+        before do
+          create(:todo, :completed, name: "Task1")
+        end
+        it "should return 0 items left message" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['metadata']['active']['formatted_message']).to eq("0 items left!")
+          expect(parsed_body['metadata']['active']['count']).to eq(0)
         end
       end
     end
 
-    context "when there are no active todos" do
-      before do
-        create(:todo, :completed, name: "Task1")
-      end
-      it "should return 0 items left message" do
-        subject
+    context "with filter completed=true" do
+      let(:params) { { completed: 'true' } }
 
-        expect(response).to have_http_status(:ok)
-        expect(parsed_body['metadata']['active']['formatted_message']).to eq("0 items left!")
-        expect(parsed_body['metadata']['active']['count']).to eq(0)
+      context "when the list is not empty" do
+        before do
+          create(:todo, :completed, name: "Task1")
+          create(:todo, name: "Task2")
+        end
+
+        it "should list all completed todos" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos'].length).to eq(1)
+          expect(parsed_body['todos'].first['name']).to eq("Task1")
+          expect(parsed_body['todos'].first['completed']).to eq(true)
+        end
+      end
+
+      context "when there are no completed todos" do
+        before do
+          create(:todo, name: "Task1")
+        end
+        it "should return no todos" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos'].length).to eq(0)
+          expect(parsed_body['todos']).to be_empty
+        end
+      end
+    end
+
+    context "with filter completed=false" do
+      let(:params) { { completed: 'false' } }
+
+      context "when the list is not empty" do
+        before do
+          create(:todo, :completed, name: "Task1")
+          create(:todo, name: "Task2")
+        end
+
+        it "should list all active todos" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos'].length).to eq(1)
+          expect(parsed_body['todos'].first['name']).to eq("Task2")
+          expect(parsed_body['todos'].first['completed']).to eq(false)
+        end
+      end
+
+      context "when there are no active todos" do
+        before do
+          create(:todo, :completed, name: "Task1")
+        end
+        it "should return no todos" do
+          subject
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_body['todos'].length).to eq(0)
+          expect(parsed_body['todos']).to be_empty
+        end
       end
     end
   end
