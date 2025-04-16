@@ -14,7 +14,9 @@ class TodosController < ApplicationController
   end
 
   def index
-    @todos = Todo.filter(filtering_params)
+    todos = Todo.filter(filtering_params)
+    per_page = params[:per_page] || 10
+    @todos = todos.page(params[:page]).per(per_page)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count(Todo.all)
 
