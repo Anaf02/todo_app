@@ -268,14 +268,47 @@ RSpec.describe TodosController, type: :controller do
     end
 
     describe "DELETE #delete_all" do
-      subject { delete :delete_all }
+      subject { delete :delete_all, params: params }
 
-      it "should delete all todos" do
-        subject
+      context "when the list is not empty" do
 
-        expect(response).to have_http_status(:ok)
-        expect(parsed_body['message']).to eq("All todos have been deleted")
-        expect(Todo.count).to eq(0)
+        context "without filter" do
+          let(:params) { {} }
+
+          it "should delete all todos" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['message']).to eq("2 todo(s) have been deleted")
+            expect(Todo.count).to eq(0)
+          end
+        end
+
+        context "with filter completed=true" do
+          let(:params) { { completed: 'true' } }
+
+          it "should delete all completed todos" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['message']).to eq("1 todo(s) have been deleted")
+            expect(Todo.count).to eq(1)
+          end
+        end
+
+        context "with filter completed=false" do
+          before do
+            create(:todo, name: "Task3")
+          end
+          let(:params) { { completed: 'false' } }
+
+          it "should not delete active todos" do
+            subject
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(Todo.count).to eq(3)
+          end
+        end
       end
     end
   end
