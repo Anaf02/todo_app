@@ -45,5 +45,4 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'active_model_serializers'
   gem 'kaminari'
-  gem 'api-pagination'
 end
