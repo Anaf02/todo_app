@@ -45,4 +45,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem 'rspec-rails'
   gem 'factory_bot_rails'
+  gem 'graphql'
+  gem 'graphiql-rails', github: "rmosolgo/graphiql-rails", group: :development
 end

@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/rmosolgo/graphiql-rails.git
+  revision: 84f0b6312d41b0afdaf864c07cf2cf034758af50
+  specs:
+    graphiql-rails (1.10.4)
+      railties
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -105,11 +112,16 @@ GEM
     factory_bot_rails (6.4.4)
       factory_bot (~> 6.5)
       railties (>= 5.0.0)
+    fiber-storage (1.0.1)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    graphql (2.5.4)
+      base64
+      fiber-storage
+      logger
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.0)
@@ -335,6 +347,8 @@ DEPENDENCIES
   debug
   factory_bot_rails
   kaminari
+  graphiql-rails!
+  graphql
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 8.0.2)
