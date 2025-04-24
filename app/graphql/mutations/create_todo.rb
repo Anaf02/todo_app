@@ -15,7 +15,6 @@ module Mutations
       unless todo.save
         raise GraphQL::ExecutionError.new "Error creating todo", extensions: todo.errors.to_hash
       end
-
       todo
     end
   end

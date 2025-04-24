@@ -20,15 +20,17 @@ RSpec.describe Mutations::CreateTodo, type: :request do
   let(:todo) { { name: 'task1', completed: false } }
 
   describe '.resolve' do
+    subject { post '/graphql', params: params, as: :json }
+    let(:params) { { query: create_query, variables: todo } }
+
     it 'creates a todo' do
-      expect {
-        TodoAppSchema.execute(create_query, variables: todo)
+      expect { subject
       }.to change { Todo.count }.by(1)
     end
 
     it 'returns the created todo' do
-      result = TodoAppSchema.execute(create_query, variables: todo)
-      data = result['data']['createTodo']
+      subject
+      data = JSON.parse(response.body)['data']['createTodo']
 
       expect(data['id']).to be_present
       expect(data['name']).to eq(todo[:name])

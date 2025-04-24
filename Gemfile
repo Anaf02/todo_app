@@ -47,4 +47,5 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'graphql'
   gem 'graphiql-rails', github: "rmosolgo/graphiql-rails", group: :development
+  gem 'pry-rails'
 end
