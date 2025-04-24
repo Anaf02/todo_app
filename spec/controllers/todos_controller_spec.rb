@@ -124,6 +124,21 @@ RSpec.describe TodosController, type: :controller do
             expect(parsed_body['metadata']['active']['count']).to eq(2)
           end
         end
+
+        context "when using pagination" do
+          before do
+            create_list(:todo, 20)
+          end
+
+          let(:params) { { page: 3, per_page: 10 } }
+
+          it "should split the items on different pages" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['todos'].length).to eq(2)
+          end
+        end
       end
 
       context "when there are no active todos" do
@@ -247,6 +262,21 @@ RSpec.describe TodosController, type: :controller do
             expect(parsed_body['todos'].length).to eq(1)
             expect(parsed_body['todos'].first['name']).to eq("Buy chocolate")
             expect(parsed_body['todos'].first['completed']).to eq(false)
+          end
+        end
+
+        context "when cascading with completed filter and using pagination" do
+          before do
+            create_list(:todo, 20)
+          end
+
+          let(:params) { { name: "task", completed: false, page: 2, per_page: 10 } }
+
+          it "should split the filtered items on different pages" do
+            subject
+
+            expect(response).to have_http_status(:ok)
+            expect(parsed_body['todos'].length).to eq(10)
           end
         end
       end

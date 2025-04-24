@@ -1,8 +1,8 @@
 class ActiveTodoCounter
   attr_reader :count
 
-  def count(todos)
-    @count = todos.select { |todo| todo.completed == false }.count
+  def count
+    @count = Todo.where(completed: false).count
   end
 
   def message

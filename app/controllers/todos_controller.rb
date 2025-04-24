@@ -3,23 +3,27 @@
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
+  DEFAULT_PER_PAGE = 10
+  DEFAULT_PAGE = 1
 
   def create
     todo = Todo.create(todo_params)
     if todo.persisted?
-      render json: todo, status: :created
+      render json: TodoSerializer.new(todo).as_json, status: :created
     else
       render json: { error: todo.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def index
-    @todos = Todo.filter(filtering_params)
+    page = params[:page] || DEFAULT_PAGE
+    per_page = params[:per_page] || DEFAULT_PER_PAGE
+    @todos = Todo.filter(filtering_params).page(page).per(per_page)
     active_todo_counter = ActiveTodoCounter.new
-    active_count = active_todo_counter.count(@todos)
+    active_count = active_todo_counter.count
 
     render json: {
-      todos: @todos,
+      todos: @todos.map { |todo| TodoSerializer.new(todo).as_json },
       metadata: {
         active: {
           count: active_count,
@@ -32,7 +36,7 @@ class TodosController < ApplicationController
   def update
     @todo = Todo.find(params[:id])
     if @todo.update(todo_params)
-      render json: @todo, status: :ok
+      render json: TodoSerializer.new(@todo).as_json, status: :ok
     else
       render json: { error: @todo.errors.full_messages }, status: :not_found
     end
