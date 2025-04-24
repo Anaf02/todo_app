@@ -3,6 +3,8 @@
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
+  DEFAULT_PER_PAGE = 10
+  DEFAULT_PAGE = 1
 
   def create
     todo = Todo.create(todo_params)
@@ -14,11 +16,11 @@ class TodosController < ApplicationController
   end
 
   def index
-    todos = Todo.filter(filtering_params)
-    per_page = params[:per_page] || 10
-    @todos = todos.page(params[:page]).per(per_page)
+    page = params[:page] || DEFAULT_PAGE
+    per_page = params[:per_page] || DEFAULT_PER_PAGE
+    @todos = Todo.filter(filtering_params).page(page).per(per_page)
     active_todo_counter = ActiveTodoCounter.new
-    active_count = active_todo_counter.count(Todo.all)
+    active_count = active_todo_counter.count
 
     render json: {
       todos: @todos.map { |todo| TodoSerializer.new(todo).as_json },
