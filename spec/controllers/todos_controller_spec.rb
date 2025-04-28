@@ -127,16 +127,17 @@ RSpec.describe TodosController, type: :controller do
 
         context "when using pagination" do
           before do
-            create_list(:todo, 20)
+            create_list(:todo, 22)
+          #   total items = 22 + 2 (created previously in the context)
           end
 
-          let(:params) { { page: 3, per_page: 10 } }
+          let(:params) { { page: 5, per_page: 5 } }
 
           it "should split the items on different pages" do
             subject
 
             expect(response).to have_http_status(:ok)
-            expect(parsed_body['todos'].length).to eq(2)
+            expect(parsed_body['todos'].length).to eq(4)
           end
         end
       end
