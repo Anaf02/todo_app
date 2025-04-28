@@ -7,11 +7,12 @@ class TodosController < ApplicationController
   DEFAULT_PAGE = 1
 
   def create
-    todo = Todo.create(todo_params)
-    if todo.persisted?
-      render json: TodoSerializer.new(todo).as_json, status: :created
+    todo_manager = TodoManager.new
+    result = todo_manager.create_todo(todo_params)
+    if result.success?
+      render json: TodoSerializer.new(result.todo).as_json, status: :created
     else
-      render json: { error: todo.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: result.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
