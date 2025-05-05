@@ -21,19 +21,6 @@ module Types
     # Add root-level fields here.
     # They will be entry points for queries on your schema.
 
-    field :todos, [Types::TodoType], null: false do
-      description "Fetches todos with filters"
-
-      argument :name, String, required: false
-      argument :completed, Boolean, required: false
-    end
-
-    def todos(name: nil, completed: nil)
-      scope = Todo.all
-      scope = scope.filter_by_completed(completed) if completed != nil
-      scope = scope.filter_by_name(name) if name != nil
-      scope
-    end
-
+    field :todos, resolver: Resolvers::TodosResolver
   end
 end
