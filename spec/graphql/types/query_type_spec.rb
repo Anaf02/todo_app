@@ -15,9 +15,24 @@ RSpec.describe 'Query Type', type: :request do
     GQL
   end
 
-  let(:parsed_body) { JSON.parse(response.body)['data']['todos'] }
+  def metadata_query
+    <<~GQL
+      query {
+        todosMetadata {
+          active {
+            count
+            formattedMessage
+          }
+        }
+      }
+    GQL
+  end
 
-  describe '.resolve' do
+  let(:parsed_body) { JSON.parse(response.body)['data'] }
+  let(:parsed_todos) { parsed_body['todos'] }
+  let(:parsed_metadata) { parsed_body['todosMetadata'] }
+
+  describe 'todos query' do
     before(:each) do
       Todo.delete_all
       create(:todo, name: 'task1')
@@ -33,7 +48,7 @@ RSpec.describe 'Query Type', type: :request do
 
       it 'returns all todos' do
         subject
-        expect(parsed_body.size).to eq(3)
+        expect(parsed_todos.size).to eq(3)
       end
     end
 
@@ -42,8 +57,8 @@ RSpec.describe 'Query Type', type: :request do
 
       it 'returns only completed todos' do
         subject
-        expect(parsed_body.size).to eq(1)
-        expect(parsed_body.first['completed']).to eq(true)
+        expect(parsed_todos.size).to eq(1)
+        expect(parsed_todos.first['completed']).to eq(true)
       end
     end
 
@@ -52,8 +67,8 @@ RSpec.describe 'Query Type', type: :request do
 
       it 'returns todos matching the name' do
         subject
-        expect(parsed_body.size).to eq(1)
-        expect(parsed_body.first['name']).to eq('task1')
+        expect(parsed_todos.size).to eq(1)
+        expect(parsed_todos.first['name']).to eq('task1')
       end
     end
 
@@ -62,8 +77,26 @@ RSpec.describe 'Query Type', type: :request do
 
       it 'returns the correct number of todos per page' do
         subject
-        expect(parsed_body.size).to eq(2)
+        expect(parsed_todos.size).to eq(2)
       end
+    end
+  end
+
+  describe 'todosMetadata query' do
+    before(:each) do
+      Todo.delete_all
+      create(:todo, name: 'task1')
+      create(:todo, :completed, name: 'task2')
+      create(:todo, name: 'task3')
+    end
+
+    subject { post '/graphql', params: { query: metadata_query }, as: :json }
+
+    it 'returns metadata about active todos' do
+      subject
+
+      expect(parsed_metadata['active']['count']).to eq(2)
+      expect(parsed_metadata['active']['formattedMessage']).to eq("2 items left!")
     end
   end
 end

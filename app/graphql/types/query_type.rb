@@ -22,5 +22,6 @@ module Types
     # They will be entry points for queries on your schema.
 
     field :todos, resolver: Resolvers::TodosResolver
+    field :todos_metadata, resolver: Resolvers::TodosMetadataResolver
   end
 end
