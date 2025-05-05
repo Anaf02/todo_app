@@ -17,14 +17,15 @@ class TodosController < ApplicationController
   end
 
   def index
-    page = params[:page] || DEFAULT_PAGE
-    per_page = params[:per_page] || DEFAULT_PER_PAGE
-    @todos = Todo.filter(filtering_params).page(page).per(per_page)
+    todo_manager = TodoManager.new
+    page = params[:page]
+    per_page = params[:per_page]
+    result = todo_manager.get_all_todos(filtering_params, page, per_page)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 
     render json: {
-      todos: @todos.map { |todo| TodoSerializer.new(todo).as_json },
+      todos: result.todo.map { |todo| TodoSerializer.new(todo).as_json },
       metadata: {
         active: {
           count: active_count,
@@ -35,24 +36,33 @@ class TodosController < ApplicationController
   end
 
   def update
-    @todo = Todo.find(params[:id])
-    if @todo.update(todo_params)
-      render json: TodoSerializer.new(@todo).as_json, status: :ok
+    todo_manager = TodoManager.new
+    result = todo_manager.update_todo(params[:id], todo_params)
+    if result.success?
+      render json: TodoSerializer.new(result.todo).as_json, status: :ok
     else
-      render json: { error: @todo.errors.full_messages }, status: :not_found
+      render json: { error: result.errors }, status: :not_found
     end
   end
 
   def delete_all
-    deleted_count = Todo.filter(delete_filtering_params).destroy_all.size
-
-    render json: { message: "#{deleted_count} todo(s) have been deleted" }, status: :ok
+    todo_manager = TodoManager.new
+    result = todo_manager.destroy_all_completed_todos(delete_filtering_params)
+    if result.success?
+      render json: { message: "#{result.todo} todo(s) have been deleted" }, status: :ok
+    else
+      render json: { error: result.errors }, status: :unprocessable_entity
+    end
   end
 
   def destroy
-    @todo = Todo.find(params[:id])
-    @todo.destroy
-    render json: { message: "Todo deleted" }, status: :ok
+    todo_manager = TodoManager.new
+    result = todo_manager.destroy_todo(params[:id])
+    if result.success?
+      render json: { message: "Todo deleted" }, status: :ok
+    else
+      render json: { error: result.errors }, status: :unprocessable_entity
+    end
   end
 
   private

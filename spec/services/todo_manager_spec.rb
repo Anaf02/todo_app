@@ -48,15 +48,16 @@ RSpec.describe TodoManager do
       expect(result.todo).to eq(paginated_todos)
     end
 
-    it 'returns error when no todos are found' do
+    it 'returns empty list when no todos are found' do
       allow(repository).to receive(:all).with(filtering_params).and_return(todo_list)
       allow(todo_list).to receive(:page).and_return(todo_list)
       allow(todo_list).to receive(:per).and_return(nil)
 
       result = manager.get_all_todos(filtering_params, pagination[:page], pagination[:per_page])
 
-      expect(result.success?).to be false
-      expect(result.errors).to eq('No todos found')
+      expect(result.success?).to be true
+      expect(result.todo).to be_empty
+      expect(result.errors).to eq(nil)
     end
   end
 
@@ -90,7 +91,7 @@ RSpec.describe TodoManager do
       result = manager.update_todo(id, params)
 
       expect(result.success?).to be false
-      expect(result.errors).to eq(todo.errors)
+      expect(result.errors).to eq("Failed to update todo")
     end
   end
 

@@ -22,11 +22,13 @@ class TodoManager
     page = DEFAULT_PAGE unless page.present?
     per_page = DEFAULT_PER_PAGE unless per_page.present?
 
-    todos = @repository.all(filtering_params).page(page).per(per_page)
-    if todos.present?
+    begin
+      todos = @repository.all(filtering_params).page(page).per(per_page)
+      todos = [] if todos.nil?
       Result.new(success?: true, todo: todos)
-    else
-      Result.new(success?: false, errors: "No todos found")
+
+    rescue => e
+      Result.new(success?: false, errors: e.message)
     end
   end
 
@@ -35,9 +37,10 @@ class TodoManager
     return Result.new(success?: false, errors: "Todo not found") unless todo
 
     if @repository.update(id, todo_params)
-      Result.new(success?: true, todo: todo)
+      updated_todo = @repository.find(id)
+      Result.new(success?: true, todo: updated_todo)
     else
-      Result.new(success?: false, errors: todo.errors)
+      Result.new(success?: false, errors: "Failed to update todo")
     end
   end
 
@@ -53,7 +56,11 @@ class TodoManager
   end
 
   def destroy_all_completed_todos(delete_filtering_params)
-    destroyed_count = @repository.delete_all(delete_filtering_params)
-    Result.new(success?: true, todo: destroyed_count)
+    begin
+      destroyed_count = @repository.delete_all(delete_filtering_params)
+      Result.new(success?: true, todo: destroyed_count)
+    rescue => e
+      Result.new(success?: false, errors: e.message)
+    end
   end
 end
