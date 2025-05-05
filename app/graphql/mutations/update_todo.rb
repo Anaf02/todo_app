@@ -11,17 +11,17 @@ module Mutations
     type Types::TodoType
 
     def resolve(id:, name: nil, completed: nil)
-      todo = ::Todo.find(id)
-
       attributes = {}
       attributes[:name] = name unless name.nil?
       attributes[:completed] = completed unless completed.nil?
 
-      unless todo.update(attributes)
+      todo_manager = TodoManager.new
+      result = todo_manager.update_todo(id, attributes)
+      if result.success?
+        result.todo
+      else
         raise GraphQL::ExecutionError.new("Error updating todo", extensions: todo.errors.to_hash)
       end
-
-      todo
     end
   end
 end
