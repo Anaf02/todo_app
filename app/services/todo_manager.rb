@@ -3,7 +3,7 @@ class TodoManager
   DEFAULT_PER_PAGE = 10
   DEFAULT_PAGE = 1
 
-  Result = Struct.new(:success?, :todo, :errors, keyword_init: true)
+  Result = Struct.new(:success?, :data, :errors, keyword_init: true)
 
   def initialize(repository = TodoRepository.new)
     @repository = repository
@@ -12,7 +12,7 @@ class TodoManager
   def create_todo(todo_params)
     todo = @repository.build(todo_params)
     if @repository.save(todo)
-      Result.new(success?: true, todo: todo)
+      Result.new(success?: true, data: todo)
     else
       Result.new(success?: false, errors: todo.errors)
     end
@@ -25,7 +25,7 @@ class TodoManager
     begin
       todos = @repository.all(filtering_params).page(page).per(per_page)
       todos = [] if todos.nil?
-      Result.new(success?: true, todo: todos)
+      Result.new(success?: true, data: todos)
 
     rescue => e
       Result.new(success?: false, errors: e.message)
@@ -38,7 +38,7 @@ class TodoManager
 
     if @repository.update(id, todo_params)
       updated_todo = @repository.find(id)
-      Result.new(success?: true, todo: updated_todo)
+      Result.new(success?: true, data: updated_todo)
     else
       Result.new(success?: false, errors: "Failed to update todo")
     end
@@ -55,10 +55,10 @@ class TodoManager
     end
   end
 
-  def destroy_all_completed_todos(delete_filtering_params)
+  def destroy_all(delete_filtering_params)
     begin
       destroyed_count = @repository.delete_all(delete_filtering_params)
-      Result.new(success?: true, todo: destroyed_count)
+      Result.new(success?: true, data: destroyed_count)
     rescue => e
       Result.new(success?: false, errors: e.message)
     end

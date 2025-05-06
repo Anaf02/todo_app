@@ -18,9 +18,9 @@ module Mutations
       todo_manager = TodoManager.new
       result = todo_manager.update_todo(id, attributes)
       if result.success?
-        result.todo
+        result.data
       else
-        raise GraphQL::ExecutionError.new("Error updating todo", extensions: todo.errors.to_hash)
+        raise GraphQL::ExecutionError.new("Error updating todo", extensions: data.errors.to_hash)
       end
     end
   end

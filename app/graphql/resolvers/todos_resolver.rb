@@ -16,7 +16,7 @@ module Resolvers
       result = todo_manager.get_all_todos(filters, page, perPage)
 
       if result.success?
-        result.todo
+        result.data
       else
         raise GraphQL::ExecutionError.new "Error fetching todos", extensions: result.errors.to_hash
       end

@@ -17,7 +17,7 @@ RSpec.describe TodoManager do
       result = manager.create_todo(params)
 
       expect(result.success?).to be true
-      expect(result.todo).to eq(todo)
+      expect(result.data).to eq(todo)
     end
 
     it 'returns errors when todo is not saved' do
@@ -45,7 +45,7 @@ RSpec.describe TodoManager do
       result = manager.get_all_todos(filtering_params, pagination[:page], pagination[:per_page])
 
       expect(result.success?).to be true
-      expect(result.todo).to eq(paginated_todos)
+      expect(result.data).to eq(paginated_todos)
     end
 
     it 'returns empty list when no todos are found' do
@@ -56,7 +56,7 @@ RSpec.describe TodoManager do
       result = manager.get_all_todos(filtering_params, pagination[:page], pagination[:per_page])
 
       expect(result.success?).to be true
-      expect(result.todo).to be_empty
+      expect(result.data).to be_empty
       expect(result.errors).to eq(nil)
     end
   end
@@ -72,7 +72,7 @@ RSpec.describe TodoManager do
       result = manager.update_todo(id, params)
 
       expect(result.success?).to be true
-      expect(result.todo).to eq(todo)
+      expect(result.data).to eq(todo)
     end
 
     it 'returns error when todo not found' do
@@ -133,10 +133,10 @@ RSpec.describe TodoManager do
     it 'returns success with destroyed count' do
       allow(repository).to receive(:delete_all).with(filter_params).and_return(5)
 
-      result = manager.destroy_all_completed_todos(filter_params)
+      result = manager.destroy_all(filter_params)
 
       expect(result.success?).to be true
-      expect(result.todo).to eq(5)
+      expect(result.data).to eq(5)
     end
   end
 end

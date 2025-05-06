@@ -10,7 +10,7 @@ class TodosController < ApplicationController
     todo_manager = TodoManager.new
     result = todo_manager.create_todo(todo_params)
     if result.success?
-      render json: TodoSerializer.new(result.todo).as_json, status: :created
+      render json: TodoSerializer.new(result.data).as_json, status: :created
     else
       render json: { error: result.errors.full_messages }, status: :unprocessable_entity
     end
@@ -25,7 +25,7 @@ class TodosController < ApplicationController
     active_count = active_todo_counter.count
 
     render json: {
-      todos: result.todo.map { |todo| TodoSerializer.new(todo).as_json },
+      todos: result.data.map { |todo| TodoSerializer.new(todo).as_json },
       metadata: {
         active: {
           count: active_count,
@@ -39,7 +39,7 @@ class TodosController < ApplicationController
     todo_manager = TodoManager.new
     result = todo_manager.update_todo(params[:id], todo_params)
     if result.success?
-      render json: TodoSerializer.new(result.todo).as_json, status: :ok
+      render json: TodoSerializer.new(result.data).as_json, status: :ok
     else
       render json: { error: result.errors }, status: :not_found
     end
@@ -47,9 +47,9 @@ class TodosController < ApplicationController
 
   def delete_all
     todo_manager = TodoManager.new
-    result = todo_manager.destroy_all_completed_todos(delete_filtering_params)
+    result = todo_manager.destroy_all(delete_filtering_params)
     if result.success?
-      render json: { message: "#{result.todo} todo(s) have been deleted" }, status: :ok
+      render json: { message: "#{result.data} todo(s) have been deleted" }, status: :ok
     else
       render json: { error: result.errors }, status: :unprocessable_entity
     end

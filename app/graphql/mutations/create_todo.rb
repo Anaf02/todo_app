@@ -14,7 +14,7 @@ module Mutations
       result = todo_manager.create_todo({ name: name, completed: completed })
 
       if result.success?
-        result.todo
+        result.data
       else
         raise GraphQL::ExecutionError.new "Error creating todo", extensions: result.errors.to_hash
       end
