@@ -2,8 +2,8 @@
 
 module Resolvers
   class TodosResolver < BaseResolver
-    type [Types::TodoType], null: false
-    description "Fetches todos with filters"
+    type Types::TodoResponseType, null: false
+    description "Fetches todos with filters and metadata associated with them."
 
     argument :name, String, required: false
     argument :completed, Boolean, required: false
@@ -16,10 +16,24 @@ module Resolvers
       result = todo_manager.get_all_todos(filters, page, perPage)
 
       if result.success?
-        result.data
+        {
+          items: result.data,
+          metadata: build_metadata
+        }
       else
         raise GraphQL::ExecutionError.new "Error fetching todos", extensions: result.errors.to_hash
       end
+    end
+
+    private
+    def build_metadata
+      active_todo_counter = ActiveTodoCounter.new
+      {
+        active: {
+          count: active_todo_counter.count,
+          formatted_message: active_todo_counter.message
+        }
+      }
     end
   end
 end
