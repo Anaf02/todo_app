@@ -7,13 +7,11 @@ module Resolvers
 
     argument :name, String, required: false
     argument :completed, Boolean, required: false
-    argument :page, Integer, required: false
-    argument :perPage, Integer, required: false
 
-    def resolve(name: nil, completed: nil, page: nil, perPage: nil)
+    def resolve(name: nil, completed: nil)
       todo_manager = TodoManager.new
       filters = { name: name, completed: completed }.compact
-      result = todo_manager.get_all_todos(filters, page, perPage)
+      result = todo_manager.get_all_todos(filters, is_paginated: false)
 
       if result.success?
         {
@@ -26,6 +24,7 @@ module Resolvers
     end
 
     private
+
     def build_metadata
       active_todo_counter = ActiveTodoCounter.new
       {
