@@ -51,6 +51,10 @@ RSpec.describe 'Query Type', type: :request do
     JSON.parse(response.body)['errors']
   end
 
+  def parsed_has_next_page
+    parsed_body['todos']['items']['pageInfo']['hasNextPage']
+  end
+
   let(:cursor) { parsed_body['todos']['items']['pageInfo']['endCursor'] }
 
   describe 'todos query' do
@@ -109,7 +113,7 @@ RSpec.describe 'Query Type', type: :request do
       end
     end
 
-    context 'when paginating results' do
+    context 'when paginating results with different options' do
       let(:variables) { { name: nil, completed: nil, first: 2, last: nil, after: nil, before: nil } }
 
       it 'fetches first 2 items and cursor, then last 1 before that cursor, then first 1 after the cursor' do
@@ -122,18 +126,21 @@ RSpec.describe 'Query Type', type: :request do
         expect(parsed_todo_nodes.first['completed']).to eq(false)
         expect(parsed_todo_nodes.second['name']).to eq('task2')
         expect(parsed_todo_nodes.second['completed']).to eq(true)
+        expect(parsed_has_next_page).to eq(true)
 
         post '/graphql', params: { query: todos_query, variables: { name: nil, completed: nil, first: nil, last: 1, after: nil, before: cursor } }, as: :json
 
         expect(parsed_todo_nodes.size).to eq(1)
         expect(parsed_todo_nodes.first['name']).to eq('task1')
         expect(parsed_todo_nodes.first['completed']).to eq(false)
+        expect(parsed_has_next_page).to eq(true)
 
         post '/graphql', params: { query: todos_query, variables: { name: nil, completed: nil, first: 1, last: nil, after: cursor, before: nil } }, as: :json
 
         expect(parsed_todo_nodes.size).to eq(1)
         expect(parsed_todo_nodes.first['name']).to eq('task3')
         expect(parsed_todo_nodes.first['completed']).to eq(false)
+        expect(parsed_has_next_page).to eq(false)
       end
     end
   end
