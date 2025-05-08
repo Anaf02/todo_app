@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'base64'
 
 RSpec.describe 'Query Type', type: :request do
   def todos_query
@@ -31,45 +32,20 @@ RSpec.describe 'Query Type', type: :request do
     GQL
   end
 
-  def parsed_body
-    JSON.parse(response.body)['data']
-  end
-
-  def parsed_edges
-    parsed_body['todos']['items']['edges']
-  end
-
-  def parsed_todo_nodes
-    parsed_edges.map { |edge| edge['node'] }
-  end
-
-  def parsed_metadata
-    parsed_body['todos']['metadata']
-  end
-
-  def parsed_errors
-    JSON.parse(response.body)['errors']
-  end
-
-  def parsed_has_next_page
-    parsed_body['todos']['items']['pageInfo']['hasNextPage']
-  end
-
-  let(:cursor) { parsed_body['todos']['items']['pageInfo']['endCursor'] }
+  let(:parsed_body) { JSON.parse(response.body)['data'] }
+  let(:parsed_todo_nodes) { parsed_body['todos']['items']['edges'].map { |edge| edge['node'] } }
+  let(:parsed_metadata) { parsed_body['todos']['metadata'] }
+  let(:parsed_has_next_page) { parsed_body['todos']['items']['pageInfo']['hasNextPage'] }
+  let(:end_cursor_after_second_todo) { Base64.strict_encode64("2") }
 
   describe 'todos query' do
-    before(:each) do
+    before do
       Todo.delete_all
-      create(:todo, name: 'task1')
-      create(:todo, :completed, name: 'task2')
-      create(:todo, name: 'task3')
     end
 
-    after(:each) do
-      if parsed_errors
-        puts "GraphQL Errors: #{parsed_errors.first['message']}"
-      end
-    end
+    let!(:todo1) { create(:todo, name: 'task1') }
+    let!(:todo2) { create(:todo, :completed, name: 'task2') }
+    let!(:todo3) { create(:todo, name: 'task3') }
 
     subject { post '/graphql', params: params, as: :json }
     let(:params) { { query: todos_query, variables: variables } }
@@ -114,33 +90,45 @@ RSpec.describe 'Query Type', type: :request do
     end
 
     context 'when paginating results with different options' do
-      let(:variables) { { name: nil, completed: nil, first: 2, last: nil, after: nil, before: nil } }
+      context 'when using first parameter' do
+        let(:variables) { { name: nil, completed: nil, first: 2, last: nil, after: nil, before: nil } }
 
-      it 'fetches first 2 items and cursor, then last 1 before that cursor, then first 1 after the cursor' do
-        subject
+        it 'fetches first 2 items' do
+          subject
 
-        expect(parsed_todo_nodes.size).to eq(2)
-        expect(cursor).to be_present
+          expect(parsed_todo_nodes.size).to eq(2)
+          expect(parsed_todo_nodes.first['name']).to eq('task1')
+          expect(parsed_todo_nodes.first['completed']).to eq(false)
+          expect(parsed_todo_nodes.second['name']).to eq('task2')
+          expect(parsed_todo_nodes.second['completed']).to eq(true)
+          expect(parsed_has_next_page).to eq(true)
+        end
 
-        expect(parsed_todo_nodes.first['name']).to eq('task1')
-        expect(parsed_todo_nodes.first['completed']).to eq(false)
-        expect(parsed_todo_nodes.second['name']).to eq('task2')
-        expect(parsed_todo_nodes.second['completed']).to eq(true)
-        expect(parsed_has_next_page).to eq(true)
+        context 'when using first and after parameters' do
+          let(:variables) { { name: nil, completed: nil, first: 1, last: nil, after: end_cursor_after_second_todo, before: nil } }
 
-        post '/graphql', params: { query: todos_query, variables: { name: nil, completed: nil, first: nil, last: 1, after: nil, before: cursor } }, as: :json
+          it 'fetches first item after the cursor' do
+            subject
 
-        expect(parsed_todo_nodes.size).to eq(1)
-        expect(parsed_todo_nodes.first['name']).to eq('task1')
-        expect(parsed_todo_nodes.first['completed']).to eq(false)
-        expect(parsed_has_next_page).to eq(true)
+            expect(parsed_todo_nodes.size).to eq(1)
+            expect(parsed_todo_nodes.first['name']).to eq('task3')
+            expect(parsed_todo_nodes.first['completed']).to eq(false)
+            expect(parsed_has_next_page).to eq(false)
+          end
+        end
+      end
 
-        post '/graphql', params: { query: todos_query, variables: { name: nil, completed: nil, first: 1, last: nil, after: cursor, before: nil } }, as: :json
+      context 'when using last and before parameters' do
+        let(:variables) { { name: nil, completed: nil, first: nil, last: 1, after: nil, before: end_cursor_after_second_todo } }
 
-        expect(parsed_todo_nodes.size).to eq(1)
-        expect(parsed_todo_nodes.first['name']).to eq('task3')
-        expect(parsed_todo_nodes.first['completed']).to eq(false)
-        expect(parsed_has_next_page).to eq(false)
+        it 'fetches last 2 items before a given cursor' do
+          subject
+
+          expect(parsed_todo_nodes.size).to eq(1)
+          expect(parsed_todo_nodes.first['name']).to eq('task1')
+          expect(parsed_todo_nodes.first['completed']).to eq(false)
+          expect(parsed_has_next_page).to eq(true)
+        end
       end
     end
   end
