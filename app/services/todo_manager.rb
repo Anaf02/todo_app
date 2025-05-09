@@ -18,15 +18,23 @@ class TodoManager
     end
   end
 
-  def get_all_todos(filtering_params, is_paginated, page = nil, per_page = nil)
+  def get_all_todos(filtering_params)
     begin
-      if is_paginated
-        page = DEFAULT_PAGE unless page.present?
-        per_page = DEFAULT_PER_PAGE unless per_page.present?
-        todos = @repository.all(filtering_params).page(page).per(per_page)
-      else
-        todos = @repository.all(filtering_params)
-      end
+      todos = @repository.all(filtering_params)
+
+      todos = [] if todos.nil?
+      Result.new(success?: true, data: todos)
+
+    rescue => e
+      Result.new(success?: false, errors: e.message)
+    end
+  end
+
+  def get_all_todos_with_pagination(filtering_params, page = nil, per_page = nil)
+    begin
+      page = DEFAULT_PAGE unless page.present?
+      per_page = DEFAULT_PER_PAGE unless per_page.present?
+      todos = @repository.all(filtering_params).page(page).per(per_page)
 
       todos = [] if todos.nil?
       Result.new(success?: true, data: todos)

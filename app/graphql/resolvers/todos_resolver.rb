@@ -11,7 +11,7 @@ module Resolvers
     def resolve(name: nil, completed: nil)
       todo_manager = TodoManager.new
       filters = { name: name, completed: completed }.compact
-      result = todo_manager.get_all_todos(filters, is_paginated: false)
+      result = todo_manager.get_all_todos(filters)
 
       if result.success?
         {
