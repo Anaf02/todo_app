@@ -20,7 +20,7 @@ class TodosController < ApplicationController
     todo_manager = TodoManager.new
     page = params[:page]
     per_page = params[:per_page]
-    result = todo_manager.get_all_todos(filtering_params, page, per_page)
+    result = todo_manager.get_all_todos_with_pagination(filtering_params, page, per_page)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 

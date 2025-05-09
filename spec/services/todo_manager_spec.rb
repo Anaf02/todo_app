@@ -42,7 +42,7 @@ RSpec.describe TodoManager do
       allow(todo_list).to receive(:per).with(pagination[:per_page]).and_return(paginated_todos)
       allow(paginated_todos).to receive(:present?).and_return(true)
 
-      result = manager.get_all_todos(filtering_params, pagination[:page], pagination[:per_page])
+      result = manager.get_all_todos_with_pagination(filtering_params, pagination[:page], pagination[:per_page])
 
       expect(result.success?).to be true
       expect(result.data).to eq(paginated_todos)
@@ -53,7 +53,7 @@ RSpec.describe TodoManager do
       allow(todo_list).to receive(:page).and_return(todo_list)
       allow(todo_list).to receive(:per).and_return(nil)
 
-      result = manager.get_all_todos(filtering_params, pagination[:page], pagination[:per_page])
+      result = manager.get_all_todos_with_pagination(filtering_params, pagination[:page], pagination[:per_page])
 
       expect(result.success?).to be true
       expect(result.data).to be_empty
