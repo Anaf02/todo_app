@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require_relative '../transactions/todos/create'
 
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
@@ -7,12 +8,11 @@ class TodosController < ApplicationController
   DEFAULT_PAGE = 1
 
   def create
-    todo_manager = TodoManager.new
-    result = todo_manager.create_todo(todo_params)
+    result = ::Transactions::Todos::Create.new.call(todo_params.to_h)
     if result.success?
-      render json: TodoSerializer.new(result.data).as_json, status: :created
+      render json: TodoSerializer.new(result.value!).as_json, status: :created
     else
-      render json: { error: result.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: result.failure }, status: :unprocessable_entity
     end
   end
 

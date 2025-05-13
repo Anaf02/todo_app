@@ -33,6 +33,11 @@ gem "thruster", require: false
 # gem "rack-cors"
 gem 'active_model_serializers'
 gem 'kaminari'
+gem 'dry-transaction'
+gem 'dry-monads'
+gem 'dry-validation'
+gem 'dry-container'
+gem 'dry-auto_inject'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
