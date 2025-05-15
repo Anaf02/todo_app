@@ -7,3 +7,5 @@ class Container
 end
 
 Container.register(:todo_repository, -> { TodoRepository.new })
+
+Import = Dry::AutoInject(Container)
