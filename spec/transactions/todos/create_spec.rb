@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_relative '../../../app/transactions/todos/create'
+# require_relative '../../../lib/transactions/todos/create'
 RSpec.describe Transactions::Todos::Create do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:todo) { create(:todo, name: "Task1") }

@@ -1,18 +1,18 @@
 # frozen_string_literal: true
-require_relative '../../contracts/todos/create_todo_contract'
+# require_relative '../../../lib/contracts/todos/o_contract'
 
 module Transactions
   module Todos
-    class Create
+    class Get
       include Dry::Transaction
       include Dry::Monads[:result]
       include Import[:todo_repository]
 
       step :validate_params
-      step :create_todo
+      step :get_filtered_todos
 
       def validate_params(input)
-        contract = ::Contracts::Todos::CreateTodoContract.new
+        contract = ::Contracts::Todos::GetTodoContract.new
         result = contract.call(input)
         if result.success?
           Success(result.to_h)
@@ -21,13 +21,9 @@ module Transactions
         end
       end
 
-      def create_todo(input)
-        todo = todo_repository.build(input)
-        if todo_repository.save(todo)
-          Success(todo)
-        else
-          Failure(todo.errors)
-        end
+      def get_filtered_todos(input)
+        todos = todo_repository.all(input) || []
+        Success(todos)
       end
     end
   end
