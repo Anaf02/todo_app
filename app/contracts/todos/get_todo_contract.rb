@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 module Contracts
   module Todos
-    class CreateTodoContract < Dry::Validation::Contract
+    class GetTodoContract < Dry::Validation::Contract
       params do
-        required(:name).filled(:string)
+        optional(:name).filled(:string)
         optional(:completed).filled(:bool)
       end
     end

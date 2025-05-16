@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative '../transactions/todos/create'
+require_relative '../transactions/todos/get'
 
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
@@ -17,15 +18,14 @@ class TodosController < ApplicationController
   end
 
   def index
-    todo_manager = TodoManager.new
     page = params[:page]
     per_page = params[:per_page]
-    result = todo_manager.get_all_todos_with_pagination(filtering_params, page, per_page)
+    todos = ::Transactions::Todos::Get.new.call(filtering_params.to_h).value!.page(page).per(per_page)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 
     render json: {
-      todos: result.data.map { |todo| TodoSerializer.new(todo).as_json },
+      todos: todos.map { |todo| TodoSerializer.new(todo).as_json },
       metadata: {
         active: {
           count: active_count,
@@ -72,7 +72,7 @@ class TodosController < ApplicationController
   end
 
   def filtering_params
-    params.slice(:completed, :name)
+    params.permit(:name, :completed)
   end
 
   def delete_filtering_params
