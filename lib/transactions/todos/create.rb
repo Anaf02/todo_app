@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# require_relative '../../../lib/contracts/todos/todo_contract'
 
 module Transactions
   module Todos
@@ -12,7 +11,7 @@ module Transactions
       step :create_todo
 
       def validate_params(input)
-        contract = ::Contracts::Todos::CreateTodoContract.new
+        contract = ::Contracts::Todos::Create.new
         result = contract.call(input)
         if result.success?
           Success(result.to_h)

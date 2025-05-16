@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-# require_relative '../../lib/transactions/todos/create'
-# require_relative '../../lib/transactions/todos/get'
 
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
