@@ -128,7 +128,7 @@ RSpec.describe TodosController, type: :controller do
         context "when using pagination" do
           before do
             create_list(:todo, 22)
-          #   total items = 22 + 2 (created previously in the context)
+            #   total items = 22 + 2 (created previously in the context)
           end
 
           let(:params) { { page: 5, per_page: 5 } }
@@ -190,7 +190,7 @@ RSpec.describe TodosController, type: :controller do
     end
 
     context "with filter completed=false" do
-      let(:params) { { completed: 'false' } }
+      let(:params) { { completed: false } }
 
       context "when the list is not empty" do
         before do
@@ -200,7 +200,6 @@ RSpec.describe TodosController, type: :controller do
 
         it "should list all active todos" do
           subject
-
           expect(response).to have_http_status(:ok)
           expect(parsed_body['todos'].length).to eq(1)
           expect(parsed_body['todos'].first['name']).to eq("Task2")
@@ -271,7 +270,7 @@ RSpec.describe TodosController, type: :controller do
             create_list(:todo, 20)
           end
 
-          let(:params) { { name: "task", completed: false, page: 2, per_page: 10 } }
+          let(:params) { { name: "task", completed: 'false', page: 2, per_page: 10 } }
 
           it "should split the filtered items on different pages" do
             subject

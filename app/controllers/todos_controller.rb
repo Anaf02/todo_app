@@ -18,7 +18,7 @@ class TodosController < ApplicationController
   def index
     page = params[:page]
     per_page = params[:per_page]
-    todos = ::Transactions::Todos::Get.new.call(filtering_params.to_h).value!.page(page).per(per_page)
+    todos = ::Transactions::Todos::Get.new.call(filtering_params.to_h).value!.page(page || DEFAULT_PAGE).per(per_page || DEFAULT_PER_PAGE)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 
