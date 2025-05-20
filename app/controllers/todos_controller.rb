@@ -34,12 +34,12 @@ class TodosController < ApplicationController
   end
 
   def update
-    todo_manager = TodoManager.new
-    result = todo_manager.update_todo(params[:id], todo_params)
+    input_hash = filtering_params.to_h.merge(id: params[:id].to_i)
+    result = ::Transactions::Todos::Update.new.call(input_hash)
     if result.success?
-      render json: TodoSerializer.new(result.data).as_json, status: :ok
+      render json: TodoSerializer.new(result.value!).as_json, status: :ok
     else
-      render json: { error: result.errors }, status: :not_found
+      render json: { error: result.failure }, status: :not_found
     end
   end
 

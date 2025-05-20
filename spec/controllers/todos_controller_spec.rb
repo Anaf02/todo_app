@@ -289,7 +289,7 @@ RSpec.describe TodosController, type: :controller do
     subject { put :update, params: params }
 
     context "when the todo exists" do
-      let(:params) { { id: todo.id, todo: { name: "Updated task", completed: true } } }
+      let(:params) { { id: todo.id, name: "Updated task", completed: true } }
 
       it "updates the todo successfully" do
         subject
@@ -301,7 +301,7 @@ RSpec.describe TodosController, type: :controller do
     end
 
     context "when the todo does not exist" do
-      let(:params) { { id: 100, todo: { name: "Task", completed: true } } }
+      let(:params) { { id: 100, name: "Task", completed: true } }
       subject { put :update, params: params }
 
       it "returns not found" do

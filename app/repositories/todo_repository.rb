@@ -23,7 +23,8 @@ class TodoRepository
 
   def update(id, attributes)
     todo = find(id)
-    todo.update(attributes)
+    return false unless todo.update(attributes)
+    todo
   end
 
   def delete(id)
