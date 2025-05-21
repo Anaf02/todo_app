@@ -14,13 +14,13 @@ module Mutations
       attributes = {}
       attributes[:name] = name unless name.nil?
       attributes[:completed] = completed unless completed.nil?
+      input_hash = attributes.merge(id: id.to_i)
 
-      todo_manager = TodoManager.new
-      result = todo_manager.update_todo(id, attributes)
+      result = ::Transactions::Todos::Update.new.call(input_hash)
       if result.success?
-        result.data
+        result.value!
       else
-        raise GraphQL::ExecutionError.new("Error updating todo", extensions: data.errors.to_hash)
+        raise GraphQL::ExecutionError.new("Error updating todo", extensions: result.failure.to_hash)
       end
     end
   end

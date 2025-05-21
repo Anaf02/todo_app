@@ -10,11 +10,10 @@ module Mutations
     type Types::TodoType
 
     def resolve(name: nil, completed: false)
-      todo_manager = TodoManager.new
-      result = todo_manager.create_todo({ name: name, completed: completed })
+      result = ::Transactions::Todos::Create.new.call({ name: name, completed: completed })
 
       if result.success?
-        result.data
+        result.value!
       else
         raise GraphQL::ExecutionError.new "Error creating todo", extensions: result.errors.to_hash
       end

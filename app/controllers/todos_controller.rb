@@ -57,7 +57,7 @@ class TodosController < ApplicationController
     if result.success?
       render json: { message: "Todo deleted" }, status: :ok
     else
-      render json: { error: result.failure }, status: :unprocessable_entity
+      render json: { error: result.failure }, status: :not_found
     end
   end
 

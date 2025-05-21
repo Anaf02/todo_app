@@ -25,7 +25,7 @@ module Transactions
           result = todo_repository.delete(input[:id])
           Success(result)
         rescue => e
-          Failure(e.message, :not_found)
+          Failure({ message: e.message, status: :not_found })
         end
       end
     end

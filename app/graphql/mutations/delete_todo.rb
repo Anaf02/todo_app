@@ -9,13 +9,12 @@ module Mutations
     argument :id, ID, required: true
 
     def resolve(id:)
-      todo_manager = TodoManager.new
-      result = todo_manager.destroy_todo(id)
+      result = ::Transactions::Todos::Destroy.new.call(id: id)
 
       if result.success?
         { message: "Todo deleted successfully" }
       else
-        raise GraphQL::ExecutionError.new "Error deleting todo", extensions: result.errors.to_hash
+        raise GraphQL::ExecutionError.new "Error deleting todo", extensions: result.failure.to_hash
       end
     end
   end

@@ -38,7 +38,12 @@ RSpec.describe 'Mutations::DeleteTodo', type: :request do
       it 'fails and returns deletion error message' do
         subject
 
-        expect(parsed_errors.first['message']).to eq("Couldn't find Todo with 'id'=-1")
+        expect(parsed_errors.first['message']).to eq("Error deleting todo")
+
+        expect(parsed_errors.first['extensions']).to eq(
+                                                       'message' => "Couldn't find Todo with 'id'=-1",
+                                                       'status' => 'not_found'
+                                                     )
       end
     end
   end
