@@ -13,7 +13,7 @@ RSpec.describe Transactions::Todos::Update do
 
     subject(:transaction) { described_class.new(todo_repository: todo_repository) }
 
-    context 'with valid input' do
+    context 'when input is valid' do
       let(:input) { { id: todo.id, name: todo.name, completed: todo.completed } }
 
       it 'returns success with the updated todo' do
@@ -24,7 +24,7 @@ RSpec.describe Transactions::Todos::Update do
       end
     end
 
-    context 'with invalid input' do
+    context 'when input is invalid' do
       let(:input) { { id: todo.id, name: todo.completed, completed: todo.name } }
 
       it 'returns failure' do
@@ -39,11 +39,11 @@ RSpec.describe Transactions::Todos::Update do
   context 'when todo does not exist' do
     subject(:transaction) { described_class.new(todo_repository: todo_repository) }
     let(:input) { { id: todo.id, name: todo.name, completed: todo.completed } }
-    
+
     before do
       allow(todo_repository).to receive(:update).with(todo.id, { name: todo.name, completed: todo.completed }).and_return(false)
     end
-    
+
     it 'returns failure' do
       result = transaction.call(input)
 

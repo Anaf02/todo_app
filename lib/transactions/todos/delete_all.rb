@@ -2,16 +2,16 @@
 
 module Transactions
   module Todos
-    class Get
+    class DeleteAll
       include Dry::Transaction
       include Dry::Monads[:result]
       include Import[:todo_repository]
 
       step :validate_params
-      step :get_filtered_todos
+      step :delete_all_filtered
 
       def validate_params(input)
-        contract = ::Contracts::Todos::Get.new
+        contract = ::Contracts::Todos::DeleteAll.new
         result = contract.call(input)
         if result.success?
           Success(result.to_h)
@@ -20,10 +20,10 @@ module Transactions
         end
       end
 
-      def get_filtered_todos(input)
+      def delete_all_filtered(input)
         begin
-          todos = todo_repository.all(input) || []
-          Success(todos)
+          destroyed_count = todo_repository.delete_all(input)
+          Success(destroyed_count)
         rescue => e
           Failure(e.message)
         end

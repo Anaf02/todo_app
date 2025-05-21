@@ -2,47 +2,47 @@
 
 require 'rails_helper'
 
-RSpec.describe Transactions::Todos::Get do
+RSpec.describe Transactions::Todos::DeleteAll do
   let(:todo_repository) { instance_double('TodoRepository') }
-  let(:todo_list) { double('TodoList') }
+  let(:destroyed_count) { 5 }
   subject(:transaction) { described_class.new(todo_repository: todo_repository) }
 
   before do
-    allow(todo_repository).to receive(:all).with(input).and_return(todo_list)
+    allow(todo_repository).to receive(:delete_all).with(input).and_return(destroyed_count)
   end
 
   context 'when input is valid' do
-    context 'with no parameters' do
+    context 'without filters' do
       let(:input) { {} }
       it 'returns success' do
         result = transaction.call(input)
         expect(result).to be_success
-        expect(result.value!).to eq(todo_list)
+        expect(result.value!).to eq(destroyed_count)
       end
     end
 
-    context 'with parameters' do
-      let(:input) { { name: 'test', completed: false } }
+    context 'with completed=true filter' do
+      let(:input) { { completed: true } }
       it 'returns success' do
         result = transaction.call(input)
         expect(result).to be_success
-        expect(result.value!).to eq(todo_list)
+        expect(result.value!).to eq(destroyed_count)
       end
     end
   end
 
   context 'when input is invalid' do
-    context 'with name not a string' do
-      let(:input) { { name: true } }
+    context 'with completed = false' do
+      let(:input) { { completed: false } }
       it 'returns failure' do
         result = transaction.call(input)
         expect(result).to be_failure
-        expect(result.failure).to include(:name)
+        expect(result.failure).to include(:completed)
       end
     end
 
-    context 'with completed not boolean' do
-      let(:input) { { completed: "string" } }
+    context 'with completed = string' do
+      let(:input) { { completed: 'some string' } }
       it 'returns failure' do
         result = transaction.call(input)
         expect(result).to be_failure

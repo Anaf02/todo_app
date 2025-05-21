@@ -44,12 +44,11 @@ class TodosController < ApplicationController
   end
 
   def delete_all
-    todo_manager = TodoManager.new
-    result = todo_manager.destroy_all(delete_filtering_params)
+    result = ::Transactions::Todos::DeleteAll.new.call(delete_filtering_params.to_h)
     if result.success?
-      render json: { message: "#{result.data} todo(s) have been deleted" }, status: :ok
+      render json: { message: "#{result.value!} todo(s) have been deleted" }, status: :ok
     else
-      render json: { error: result.errors }, status: :unprocessable_entity
+      render json: { error: result.failure }, status: :unprocessable_entity
     end
   end
 
@@ -75,12 +74,7 @@ class TodosController < ApplicationController
 
   def delete_filtering_params
     return {} unless params.key?(:completed)
-
-    if params[:completed] == "true"
-      { completed: true }
-    else
-      raise ActionController::ParameterMissing.new(:completed)
-    end
+    { completed: ActiveModel::Type::Boolean.new.cast(params[:completed]) }
   end
 
   def handle_parameter_missing(exception)

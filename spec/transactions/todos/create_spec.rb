@@ -10,7 +10,7 @@ RSpec.describe Transactions::Todos::Create do
     allow(todo_repository).to receive(:save).with(todo).and_return(true)
   end
 
-  context 'with valid input' do
+  context 'when input is valid' do
     subject(:transaction) { described_class.new(todo_repository: todo_repository) }
     let(:input) { { name: 'Task1', completed: false } }
 
@@ -21,7 +21,7 @@ RSpec.describe Transactions::Todos::Create do
     end
   end
 
-  context 'with invalid input' do
+  context 'when input is invalid' do
     let(:input) { { completed: false } }
     subject(:transaction) { described_class.new }
 
