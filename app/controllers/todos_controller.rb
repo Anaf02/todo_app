@@ -53,12 +53,11 @@ class TodosController < ApplicationController
   end
 
   def destroy
-    todo_manager = TodoManager.new
-    result = todo_manager.destroy_todo(params[:id])
+    result = ::Transactions::Todos::Destroy.new.call(id: params[:id].to_i)
     if result.success?
       render json: { message: "Todo deleted" }, status: :ok
     else
-      render json: { error: result.errors }, status: :unprocessable_entity
+      render json: { error: result.failure }, status: :unprocessable_entity
     end
   end
 
