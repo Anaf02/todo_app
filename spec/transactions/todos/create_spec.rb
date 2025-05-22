@@ -6,8 +6,7 @@ RSpec.describe Transactions::Todos::Create do
   let(:todo) { create(:todo, name: "Task1") }
 
   before do
-    allow(todo_repository).to receive(:build).with(input).and_return(todo)
-    allow(todo_repository).to receive(:save).with(todo).and_return(true)
+    allow(todo_repository).to receive(:create).with(input).and_return(todo)
   end
 
   context 'when input is valid' do
