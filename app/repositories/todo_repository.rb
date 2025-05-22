@@ -23,7 +23,7 @@ class TodoRepository
 
   def update(id, attributes)
     todo = find(id)
-    return false unless todo.update(attributes)
+    todo.update(attributes)
     todo
   end
 

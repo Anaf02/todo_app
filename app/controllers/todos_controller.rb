@@ -39,8 +39,7 @@ class TodosController < ApplicationController
   end
 
   def update
-    input_hash = filtering_params.to_h.merge(id: params[:id].to_i)
-    result = ::Transactions::Todos::Update.new.call(input_hash)
+    result = ::Transactions::Todos::Update.new.call(update_params)
     if result.success?
       render json: TodoSerializer.new(result.value!).as_json, status: :ok
     else
@@ -74,6 +73,14 @@ class TodosController < ApplicationController
 
   def filtering_params
     params.permit(:name, :completed)
+  end
+
+  def update_params
+    {
+      id: params[:id].to_i,
+      name: params[:name],
+      completed: ActiveModel::Type::Boolean.new.cast(params[:completed])
+    }.compact
   end
 
   def delete_filtering_params
