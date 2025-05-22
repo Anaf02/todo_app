@@ -3,8 +3,6 @@
 class TodosController < ApplicationController
   rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
-  DEFAULT_PER_PAGE = 10
-  DEFAULT_PAGE = 1
 
   def create
     result = ::Transactions::Todos::Create.new.call(todo_params.to_h)
@@ -18,19 +16,26 @@ class TodosController < ApplicationController
   def index
     page = params[:page]
     per_page = params[:per_page]
-    todos = ::Transactions::Todos::Get.new.call(filtering_params.to_h).value!.page(page || DEFAULT_PAGE).per(per_page || DEFAULT_PER_PAGE)
+    result = ::Transactions::Todos::Get.new.call(filtering_params.to_h)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 
-    render json: {
-      todos: todos.map { |todo| TodoSerializer.new(todo).as_json },
-      metadata: {
-        active: {
-          count: active_count,
-          formatted_message: active_todo_counter.message
+    if result.success?
+      todos = result.value!
+      paginated_todos = PaginationService.new(todos, page: page, per_page: per_page).call
+
+      render json: {
+        todos: paginated_todos.map { |todo| TodoSerializer.new(todo).as_json },
+        metadata: {
+          active: {
+            count: active_count,
+            formatted_message: active_todo_counter.message
+          }
         }
       }
-    }
+    else
+      render json: { error: result.failure }, status: :unprocessable_entity
+    end
   end
 
   def update
