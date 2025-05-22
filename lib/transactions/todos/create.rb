@@ -3,22 +3,12 @@
 module Transactions
   module Todos
     class Create
-      include Dry::Transaction
+      include Dry::Transaction(container: Container)
       include Dry::Monads[:result]
       include Import[:todo_repository]
 
-      step :validate_params
+      step :validate, with: "validate.todos.create"
       step :create_todo
-
-      def validate_params(input)
-        contract = ::Contracts::Todos::Create.new
-        result = contract.call(input)
-        if result.success?
-          Success(result.to_h)
-        else
-          Failure(result.errors.to_h)
-        end
-      end
 
       def create_todo(input)
         todo = todo_repository.build(input)
