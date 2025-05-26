@@ -11,10 +11,14 @@ module Mutations
     def resolve(id:)
       result = Container["todo_transactions.destroy"].call(id: id)
 
-      if result.success?
-        { message: "Todo deleted successfully" }
-      else
-        raise GraphQL::ExecutionError.new "Error deleting todo", extensions: result.failure.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do
+          { message: "Todo deleted successfully" }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error deleting todo", extensions: error
+        end
       end
     end
   end

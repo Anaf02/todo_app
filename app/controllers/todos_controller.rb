@@ -76,7 +76,6 @@ class TodosController < ApplicationController
   def destroy
     result = Container["todo_transactions.destroy"].call(id: params[:id].to_i)
     Dry::Matcher::ResultMatcher.call(result) do |m|
-
       m.success do
         render json: { message: "Todo deleted" }, status: :ok
       end

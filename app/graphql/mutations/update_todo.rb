@@ -17,10 +17,14 @@ module Mutations
       input_hash = attributes.merge(id: id.to_i)
 
       result = Container["todo_transactions.update"].call(input_hash)
-      if result.success?
-        result.value!
-      else
-        raise GraphQL::ExecutionError.new("Error updating todo", extensions: result.failure.to_hash)
+
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do |value|
+          value
+        end
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new("Error updating todo", extensions: error)
+        end
       end
     end
   end

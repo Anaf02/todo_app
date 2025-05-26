@@ -13,10 +13,14 @@ module Mutations
 
       result = Container["todo_transactions.delete_all"].call(completed: completed)
 
-      if result.success?
-        { message: "#{result.value!} todo(s) have been deleted" }
-      else
-        raise GraphQL::ExecutionError.new "Error deleting all completed todos", extensions: result.failure.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success(Integer) do |value|
+          { message: "#{value} todo(s) have been deleted" }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error deleting all completed todos", extensions: error
+        end
       end
     end
   end

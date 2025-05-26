@@ -4,7 +4,7 @@ module Contracts
   module Todos
     class DeleteAll < Dry::Validation::Contract
       params do
-        optional(:completed).maybe(:bool)
+        optional(:completed).filled(:bool)
       end
 
       rule(:completed) do

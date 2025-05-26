@@ -12,13 +12,17 @@ module Resolvers
       filters = { name: name, completed: completed }.compact
       result = Container["todo_transactions.get"].call(filters)
 
-      if result.success?
-        {
-          items: result.value!,
-          metadata: build_metadata
-        }
-      else
-        raise GraphQL::ExecutionError.new "Error fetching todos", extensions: result.failure.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do |value|
+          {
+            items: value,
+            metadata: build_metadata
+          }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error fetching todos", extensions: error
+        end
       end
     end
 
