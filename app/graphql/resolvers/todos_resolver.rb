@@ -10,7 +10,7 @@ module Resolvers
 
     def resolve(name: nil, completed: nil)
       filters = { name: name, completed: completed }.compact
-      result = ::Transactions::Todos::Get.new.call(filters)
+      result = Container["todo_transactions.get"].call(filters)
 
       if result.success?
         {

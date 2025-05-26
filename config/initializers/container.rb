@@ -16,6 +16,14 @@ Container.namespace "todo_contracts" do
   register "update", -> { Contracts::Todos::Update.new }
 end
 
+Container.namespace "todo_transactions" do
+  register "create", -> { Transactions::Todos::Create.new }
+  register "delete_all", -> { Transactions::Todos::DeleteAll.new }
+  register "destroy", -> { Transactions::Todos::Destroy.new }
+  register "get", -> { Transactions::Todos::Get.new }
+  register "update", -> { Transactions::Todos::Update.new }
+end
+
 Container.namespace "validate" do
   namespace "todos" do
     register "create", -> {

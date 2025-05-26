@@ -6,7 +6,7 @@ class TodosController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
 
   def create
-    result = ::Transactions::Todos::Create.new.call(todo_params.to_h)
+    result = Container["todo_transactions.create"].call(todo_params.to_h)
     Dry::Transaction::ResultMatcher.call(result) do |m|
       m.success do |value|
         render json: TodoSerializer.new(value).as_json, status: :created
@@ -21,7 +21,7 @@ class TodosController < ApplicationController
   def index
     page = params[:page]
     per_page = params[:per_page]
-    result = ::Transactions::Todos::Get.new.call(filtering_params.to_h)
+    result = Container["todo_transactions.get"].call(filtering_params.to_h)
     active_todo_counter = ActiveTodoCounter.new
     active_count = active_todo_counter.count
 
@@ -48,7 +48,7 @@ class TodosController < ApplicationController
   end
 
   def update
-    result = ::Transactions::Todos::Update.new.call(update_params)
+    result = Container["todo_transactions.update"].call(update_params)
     Dry::Matcher::ResultMatcher.call(result) do |m|
       m.success do |value|
         render json: TodoSerializer.new(value).as_json, status: :ok
@@ -60,7 +60,7 @@ class TodosController < ApplicationController
   end
 
   def delete_all
-    result = ::Transactions::Todos::DeleteAll.new.call(delete_filtering_params.to_h)
+    result = Container["todo_transactions.delete_all"].call(delete_filtering_params.to_h)
 
     Dry::Matcher::ResultMatcher.call(result) do |m|
       m.success(Integer) do |value|
@@ -74,7 +74,7 @@ class TodosController < ApplicationController
   end
 
   def destroy
-    result = ::Transactions::Todos::Destroy.new.call(id: params[:id].to_i)
+    result = Container["todo_transactions.destroy"].call(id: params[:id].to_i)
     Dry::Matcher::ResultMatcher.call(result) do |m|
 
       m.success do

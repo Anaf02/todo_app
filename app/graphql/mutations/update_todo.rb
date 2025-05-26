@@ -16,7 +16,7 @@ module Mutations
       attributes[:completed] = completed unless completed.nil?
       input_hash = attributes.merge(id: id.to_i)
 
-      result = ::Transactions::Todos::Update.new.call(input_hash)
+      result = Container["todo_transactions.update"].call(input_hash)
       if result.success?
         result.value!
       else

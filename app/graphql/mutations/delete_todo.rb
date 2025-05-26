@@ -9,7 +9,7 @@ module Mutations
     argument :id, ID, required: true
 
     def resolve(id:)
-      result = ::Transactions::Todos::Destroy.new.call(id: id)
+      result = Container["todo_transactions.destroy"].call(id: id)
 
       if result.success?
         { message: "Todo deleted successfully" }
