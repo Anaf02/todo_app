@@ -38,6 +38,7 @@ gem 'dry-monads', '~> 1.8', '>= 1.8.3'
 gem 'dry-validation', '~> 1.11', '>= 1.11.1'
 gem 'dry-container', '~> 0.11.0'
 gem 'dry-auto_inject', '~> 1.1'
+gem 'dry-matcher', '~> 1.0'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
