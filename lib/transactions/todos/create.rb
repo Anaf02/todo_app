@@ -2,22 +2,10 @@
 
 module Transactions
   module Todos
-    class Create
-      include Dry::Transaction(container: Container)
-      include Dry::Monads[:result]
-      include Import[:todo_repository]
+    class Create < BaseTransaction
 
-      step :validate, with: "validate.todos.create"
-      step :create_todo
-
-      def create_todo(input)
-        todo = todo_repository.create(input)
-        if todo.persisted?
-          Success(todo)
-        else
-          Failure(todo.errors)
-        end
-      end
+      step :validate, with: "contracts.todos.create"
+      step :create_todo, with: "operations.todos.create"
     end
   end
 end

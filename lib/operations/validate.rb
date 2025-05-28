@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+require "dry/transaction/operation"
 
-module Steps
+module Operations
   class Validate
-    include Dry::Monads[:result]
+    include Dry::Transaction::Operation
 
     def initialize(contract)
       @contract = contract

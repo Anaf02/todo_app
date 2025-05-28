@@ -2,8 +2,7 @@
 require 'dry/matcher/result_matcher'
 
 class TodosController < ApplicationController
-  rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_record_not_found
+  include ::ErrorHandlingConcern
 
   def create
     result = Container["todo_transactions.create"].call(todo_params.to_h)
@@ -13,7 +12,7 @@ class TodosController < ApplicationController
       end
 
       m.failure do |error|
-        render json: { error: error }, status: :unprocessable_entity
+        render_failures(error, :unprocessable_entity)
       end
     end
   end
@@ -42,7 +41,7 @@ class TodosController < ApplicationController
       end
 
       m.failure do |error|
-        render json: { error: error }, status: :unprocessable_entity
+        render_failures(error, :unprocessable_entity)
       end
     end
   end
@@ -54,7 +53,7 @@ class TodosController < ApplicationController
         render json: TodoSerializer.new(value).as_json, status: :ok
       end
       m.failure do |error|
-        render json: { error: error }, status: :not_found
+        render_failures(error, :not_found)
       end
     end
   end
@@ -68,7 +67,7 @@ class TodosController < ApplicationController
       end
 
       m.failure do |error|
-        render json: { error: error }, status: :unprocessable_entity
+        render_failures(error, :unprocessable_entity)
       end
     end
   end
@@ -80,8 +79,8 @@ class TodosController < ApplicationController
         render json: { message: "Todo deleted" }, status: :ok
       end
 
-      m.failure do
-        render json: { error: result.failure }, status: :not_found
+      m.failure do |error|
+        render_failures(error, :not_found)
       end
     end
   end
@@ -109,11 +108,4 @@ class TodosController < ApplicationController
     { completed: ActiveModel::Type::Boolean.new.cast(params[:completed]) }
   end
 
-  def handle_parameter_missing(exception)
-    render json: { error: exception.message }, status: :unprocessable_entity
-  end
-
-  def handle_record_not_found(exception)
-    render json: { error: exception.message }, status: :not_found
-  end
 end

@@ -2,22 +2,10 @@
 
 module Transactions
   module Todos
-    class DeleteAll
-      include Dry::Transaction(container: Container)
-      include Dry::Monads[:result]
-      include Import[:todo_repository]
+    class DeleteAll < BaseTransaction
 
-      step :validate, with: "validate.todos.delete_all"
-      step :delete_all_filtered
-
-      def delete_all_filtered(input)
-        begin
-          destroyed_count = todo_repository.delete_all(input)
-          Success(destroyed_count)
-        rescue => e
-          Failure(e.message)
-        end
-      end
+      step :validate, with: "contracts.todos.delete_all"
+      step :delete_all_filtered, with: "operations.todos.delete_all"
     end
   end
 end

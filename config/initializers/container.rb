@@ -24,22 +24,42 @@ Container.namespace "todo_transactions" do
   register "update", -> { Transactions::Todos::Update.new }
 end
 
-Container.namespace "validate" do
+Container.namespace "operations" do
   namespace "todos" do
     register "create", -> {
-      Steps::Validate.new(Container.resolve("todo_contracts.create"))
+      Operations::Create.new
     }
     register "delete_all", -> {
-      Steps::Validate.new(Container.resolve("todo_contracts.delete_all"))
+      Operations::DeleteAll.new
     }
     register "destroy", -> {
-      Steps::Validate.new(Container.resolve("todo_contracts.destroy"))
+      Operations::Destroy.new(Container.resolve(:todo_repository))
     }
     register "get", -> {
-      Steps::Validate.new(Container.resolve("todo_contracts.get"))
+      Operations::Get.new(Container.resolve(:todo_repository))
     }
     register "update", -> {
-      Steps::Validate.new(Container.resolve("todo_contracts.update"))
+      Operations::Update.new(Container.resolve(:todo_repository))
+    }
+  end
+end
+
+Container.namespace "contracts" do
+  namespace "todos" do
+    register "create", -> {
+      Operations::Validate.new(Container.resolve("todo_contracts.create"))
+    }
+    register "delete_all", -> {
+      Operations::Validate.new(Container.resolve("todo_contracts.delete_all"))
+    }
+    register "destroy", -> {
+      Operations::Validate.new(Container.resolve("todo_contracts.destroy"))
+    }
+    register "get", -> {
+      Operations::Validate.new(Container.resolve("todo_contracts.get"))
+    }
+    register "update", -> {
+      Operations::Validate.new(Container.resolve("todo_contracts.update"))
     }
   end
 end

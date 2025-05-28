@@ -2,18 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe Transactions::Todos::DeleteAll do
+RSpec.describe Operations::DeleteAll do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:destroyed_count) { 5 }
-  subject(:transaction) { described_class.new(todo_repository: todo_repository) }
+  subject(:transaction) { described_class.new }
 
-  before do
-    allow(todo_repository).to receive(:delete_all).with(input).and_return(destroyed_count)
-  end
-
-  context 'when input is valid' do
-    context 'without filters' do
+  describe '#call' do
+    context 'when validation is successful' do
       let(:input) { {} }
+
+      before do
+        allow(transaction).to receive(:validate).and_return(Dry::Monads::Success(input))
+        allow(todo_repository).to receive(:delete_all).with(input).and_return(destroyed_count)
+      end
+
       it 'returns success' do
         result = transaction.call(input)
         expect(result).to be_success
@@ -21,32 +23,19 @@ RSpec.describe Transactions::Todos::DeleteAll do
       end
     end
 
-    context 'with completed=true filter' do
-      let(:input) { { completed: true } }
-      it 'returns success' do
-        result = transaction.call(input)
-        expect(result).to be_success
-        expect(result.value!).to eq(destroyed_count)
-      end
-    end
-  end
-
-  context 'when input is invalid' do
-    context 'with completed = false' do
+    context 'when validation fails' do
       let(:input) { { completed: false } }
-      it 'returns failure' do
-        result = transaction.call(input)
-        expect(result).to be_failure
-        expect(result.failure).to include(:completed)
-      end
-    end
+      let(:errors) { { name: ['is missing'] } }
 
-    context 'with completed = string' do
-      let(:input) { { completed: 'some string' } }
+      before do
+        allow(transaction).to receive(:validate).and_return(Dry::Monads::Failure(input))
+      end
+
       it 'returns failure' do
         result = transaction.call(input)
         expect(result).to be_failure
         expect(result.failure).to include(:completed)
+        expect(todo_repository).not_to receive(:delete_all)
       end
     end
   end
