@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe Operations::Create do
+RSpec.describe Operations::Todos::Create do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:todo) { create(:todo, name: "Task1") }
   subject(:operation) { described_class.new(todo_repository: todo_repository) }

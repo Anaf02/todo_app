@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Operations::Get do
+RSpec.describe Operations::Todos::Get do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:todo_list) { double('TodoList') }
   subject(:operation) { described_class.new(todo_repository: todo_repository) }

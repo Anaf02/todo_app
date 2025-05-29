@@ -27,19 +27,19 @@ end
 Container.namespace "operations" do
   namespace "todos" do
     register "create", -> {
-      Operations::Create.new
+      Operations::Todos::Create.new
     }
     register "delete_all", -> {
-      Operations::DeleteAll.new
+      Operations::Todos::DeleteAll.new
     }
     register "destroy", -> {
-      Operations::Destroy.new
+      Operations::Todos::Destroy.new
     }
     register "get", -> {
-      Operations::Get.new
+      Operations::Todos::Get.new
     }
     register "update", -> {
-      Operations::Update.new
+      Operations::Todos::Update.new
     }
   end
 end

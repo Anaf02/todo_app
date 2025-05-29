@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Operations::Destroy do
+RSpec.describe Operations::Todos::Destroy do
   let(:todo_repository) { instance_double('TodoRepository') }
   subject(:operation) { described_class.new(todo_repository: todo_repository) }
   let(:input) { { id: 1 } }

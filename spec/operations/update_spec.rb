@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Operations::Update do
+RSpec.describe Operations::Todos::Update do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:todo) { create(:todo, name: "Task1") }
 

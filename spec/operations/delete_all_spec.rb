@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Operations::DeleteAll do
+RSpec.describe Operations::Todos::DeleteAll do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:destroyed_count) { 5 }
   subject(:operation) { described_class.new(todo_repository: todo_repository) }
