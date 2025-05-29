@@ -33,13 +33,13 @@ Container.namespace "operations" do
       Operations::DeleteAll.new
     }
     register "destroy", -> {
-      Operations::Destroy.new(Container.resolve(:todo_repository))
+      Operations::Destroy.new
     }
     register "get", -> {
-      Operations::Get.new(Container.resolve(:todo_repository))
+      Operations::Get.new
     }
     register "update", -> {
-      Operations::Update.new(Container.resolve(:todo_repository))
+      Operations::Update.new
     }
   end
 end

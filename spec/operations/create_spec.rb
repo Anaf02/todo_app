@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe Operations::Create do
   let(:todo_repository) { instance_double('TodoRepository') }
   let(:todo) { create(:todo, name: "Task1") }
-  subject(:transaction) { described_class.new(todo_repository: todo_repository) }
+  subject(:operation) { described_class.new(todo_repository: todo_repository) }
 
   before do
     allow(todo_repository).to receive(:create).with(input).and_return(todo)
@@ -20,7 +20,8 @@ RSpec.describe Operations::Create do
       end
 
       it 'returns success with the todo' do
-        result = transaction.call(input)
+        result = operation.call(input)
+
         expect(result).to be_success
         expect(result.value!).to eq(todo)
       end

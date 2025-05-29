@@ -1,10 +1,7 @@
 # frozen_string_literal: true
-require 'dry/transaction/operation'
 
 module Operations
-  class Create
-    include Dry::Transaction::Operation
-    include Import[:todo_repository]
+  class Create < BaseTodoOperation
 
     def call(input)
       todo = todo_repository.create(input)
