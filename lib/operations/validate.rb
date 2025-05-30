@@ -5,12 +5,9 @@ module Operations
   class Validate
     include Dry::Transaction::Operation
 
-    def initialize(contract)
-      @contract = contract
-    end
-
     def call(input)
-      result = @contract.call(input)
+      contract = input.delete(:contract)
+      result = contract.call(input)
       if result.success?
         Success(result.to_h)
       else

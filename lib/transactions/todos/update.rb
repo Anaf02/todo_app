@@ -4,7 +4,7 @@ module Transactions
   module Todos
     class Update < BaseTransaction
 
-      step :validate, with: "contracts.todos.update"
+      step :validate, with: "operations.validate"
       step :update_todo, with: "operations.todos.update"
     end
   end
