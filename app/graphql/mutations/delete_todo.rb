@@ -9,7 +9,8 @@ module Mutations
     argument :id, ID, required: true
 
     def resolve(id:)
-      result = Container["todo_transactions.destroy"].call(id: id)
+      result = Container["transactions.todos.destroy"]
+                 .call(transaction_input(Container["contracts.todos.destroy"], id: id))
 
       Dry::Matcher::ResultMatcher.call(result) do |m|
         m.success do

@@ -10,7 +10,8 @@ module Mutations
     type Types::TodoType
 
     def resolve(name: nil, completed: false)
-      result = Container["todo_transactions.create"].call({ name: name, completed: completed })
+      result = Container["transactions.todos.create"]
+                 .call(transaction_input(Container["contracts.todos.create"], { name: name, completed: completed }))
 
       Dry::Transaction::ResultMatcher.call(result) do |m|
         m.success do |value|

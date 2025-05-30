@@ -3,6 +3,7 @@ require 'dry/matcher/result_matcher'
 
 class TodosController < ApplicationController
   include ::ErrorHandlingConcern
+  include ::TransactionInputBuilderConcern
 
   def create
     result = Container["transactions.todos.create"]
@@ -87,12 +88,6 @@ class TodosController < ApplicationController
   end
 
   private
-
-  def transaction_input(contract, params)
-    {
-      contract: contract
-    }.merge(params.to_h)
-  end
 
   def todo_params
     params.require(:todo).permit(:name, :completed)

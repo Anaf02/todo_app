@@ -11,7 +11,8 @@ module Mutations
     def resolve(completed:)
       raise GraphQL::ExecutionError, "Only completed=true is allowed" unless completed
 
-      result = Container["todo_transactions.delete_all"].call(completed: completed)
+      result = Container["transactions.todos.delete_all"]
+                 .call(transaction_input(Container["contracts.todos.delete_all"], completed: completed))
 
       Dry::Matcher::ResultMatcher.call(result) do |m|
         m.success(Integer) do |value|

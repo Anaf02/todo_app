@@ -10,7 +10,8 @@ module Resolvers
 
     def resolve(name: nil, completed: nil)
       filters = { name: name, completed: completed }.compact
-      result = Container["todo_transactions.get"].call(filters)
+      result = Container["transactions.todos.get"]
+                 .call(transaction_input(Container["contracts.todos.get"], filters))
 
       Dry::Matcher::ResultMatcher.call(result) do |m|
         m.success do |value|
