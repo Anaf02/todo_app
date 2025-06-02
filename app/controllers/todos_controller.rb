@@ -8,10 +8,13 @@ class TodosController < ApplicationController
   def create
     result = Container["transactions.todos.create"]
                .call(transaction_input(Container["contracts.todos.create"], todo_params))
-    if result.success?
-      render json: TodoSerializer.new(result.value!).as_json, status: :created
-    else
-      render_failures(result.failure, :unprocessable_entity)
+    Dry::Matcher::ResultMatcher.call(result) do |m|
+      m.success do |value|
+        render json: TodoSerializer.new(value).as_json, status: :created
+      end
+      m.failure do |error|
+        render_failures(error, :unprocessable_entity)
+      end
     end
   end
 
