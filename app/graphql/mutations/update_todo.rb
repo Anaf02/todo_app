@@ -11,17 +11,27 @@ module Mutations
     type Types::TodoType
 
     def resolve(id:, name: nil, completed: nil)
-      attributes = {}
-      attributes[:name] = name unless name.nil?
-      attributes[:completed] = completed unless completed.nil?
+      result = Container["transactions.todos.update"]
+                 .call(transaction_input(Container["contracts.todos.update"], update_params(id: id, name: name, completed: completed)))
 
-      todo_manager = TodoManager.new
-      result = todo_manager.update_todo(id, attributes)
-      if result.success?
-        result.data
-      else
-        raise GraphQL::ExecutionError.new("Error updating todo", extensions: data.errors.to_hash)
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do |value|
+          value
+        end
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new("Error updating todo", extensions: error)
+        end
       end
+    end
+
+    private
+
+    def update_params(id:, name: nil, completed: nil)
+      {
+        id: id.to_i,
+        name: name,
+        completed: completed
+      }.compact
     end
   end
 end

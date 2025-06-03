@@ -5,12 +5,8 @@ class TodoRepository
     @db = db
   end
 
-  def build(params)
-    @db.new(params)
-  end
-
-  def save(todo)
-    todo.save
+  def create(params)
+    @db.create(params)
   end
 
   def find(id)
@@ -24,6 +20,7 @@ class TodoRepository
   def update(id, attributes)
     todo = find(id)
     todo.update(attributes)
+    todo
   end
 
   def delete(id)

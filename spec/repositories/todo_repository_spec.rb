@@ -9,22 +9,14 @@ RSpec.describe TodoRepository, type: :model do
     Todo.delete_all
   end
 
-  describe "#build" do
-    it "builds a new Todo in memory with given params" do
-      todo = repository.build(name: "Task1", completed: false)
-
-      expect(todo).to be_a_new(Todo)
-      expect(todo.name).to eq("Task1")
-      expect(todo.completed).to eq(false)
-    end
-  end
-
-  describe "#save" do
-    it "saves a new todo to the database" do
-      todo = repository.build(name: "Task2")
-
-      expect { repository.save(todo) }.to change { Todo.count }.by(1)
-      expect(todo.id).not_to be_nil
+  describe "#create" do
+    it "creates and persists a new todo to the database" do
+      expect {
+        todo = repository.create(name: "Task1", completed: false)
+        expect(todo).to be_persisted
+        expect(todo.name).to eq("Task1")
+        expect(todo.completed).to eq(false)
+      }.to change { Todo.count }.by(1)
     end
   end
 

@@ -9,13 +9,17 @@ module Mutations
     argument :id, ID, required: true
 
     def resolve(id:)
-      todo_manager = TodoManager.new
-      result = todo_manager.destroy_todo(id)
+      result = Container["transactions.todos.destroy"]
+                 .call(transaction_input(Container["contracts.todos.destroy"], id: id))
 
-      if result.success?
-        { message: "Todo deleted successfully" }
-      else
-        raise GraphQL::ExecutionError.new "Error deleting todo", extensions: result.errors.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do
+          { message: "Todo deleted successfully" }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error deleting todo", extensions: error
+        end
       end
     end
   end

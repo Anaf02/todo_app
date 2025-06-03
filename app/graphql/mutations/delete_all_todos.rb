@@ -11,13 +11,17 @@ module Mutations
     def resolve(completed:)
       raise GraphQL::ExecutionError, "Only completed=true is allowed" unless completed
 
-      todo_manager = TodoManager.new
-      result = todo_manager.destroy_all(completed: completed)
+      result = Container["transactions.todos.delete_all"]
+                 .call(transaction_input(Container["contracts.todos.delete_all"], completed: completed))
 
-      if result.success?
-        { message: "#{result.data} todo(s) have been deleted" }
-      else
-        raise GraphQL::ExecutionError.new "Error deleting all completed todos", extensions: result.errors.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success(Integer) do |value|
+          { message: "#{value} todo(s) have been deleted" }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error deleting all completed todos", extensions: error
+        end
       end
     end
   end

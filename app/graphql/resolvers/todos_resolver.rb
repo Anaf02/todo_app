@@ -9,17 +9,21 @@ module Resolvers
     argument :completed, Boolean, required: false
 
     def resolve(name: nil, completed: nil)
-      todo_manager = TodoManager.new
       filters = { name: name, completed: completed }.compact
-      result = todo_manager.get_all_todos(filters)
+      result = Container["transactions.todos.get"]
+                 .call(transaction_input(Container["contracts.todos.get"], filters))
 
-      if result.success?
-        {
-          items: result.data,
-          metadata: build_metadata
-        }
-      else
-        raise GraphQL::ExecutionError.new "Error fetching todos", extensions: result.errors.to_hash
+      Dry::Matcher::ResultMatcher.call(result) do |m|
+        m.success do |value|
+          {
+            items: value,
+            metadata: build_metadata
+          }
+        end
+
+        m.failure do |error|
+          raise GraphQL::ExecutionError.new "Error fetching todos", extensions: error
+        end
       end
     end
 
