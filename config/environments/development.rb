@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+
+  config.hosts << "todo-a-publi-mjhslaykblcm-902164618.eu-central-1.elb.amazonaws.com"
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.

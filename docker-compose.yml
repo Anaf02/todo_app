@@ -33,6 +33,7 @@ services:
       DATABASE_HOST: ${DATABASE_HOST} # Use the service name 'db' as the hostname
       POSTGRES_USERNAME: ${POSTGRES_USERNAME} # Default PostgreSQL user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Use the same password as defined in the 'db' service
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'" # Ensure server.pid is removed before starting
     networks:
       - default

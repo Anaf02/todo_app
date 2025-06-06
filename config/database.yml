@@ -5,18 +5,21 @@ default: &default
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   # Use environment variables for connection details
-  host: <%= ENV.fetch("DATABASE_HOST") %>
-  username: <%= ENV.fetch("POSTGRES_USERNAME") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "db") %>
+  username: <%= ENV.fetch("POSTGRES_USERNAME", "postgres") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD", "password") %>
 
 development:
   <<: *default
-  database: todo_app_development # Default Rails naming convention
+  database: todos_dev # Default Rails naming convention
+
+production:
+  <<: *default
+  database: todos # Default Rails naming convention
 
 test:
   <<: *default
   database: todo_app_test # Default Rails naming convention
-
   # You'll configure production similarly, likely using different ENV vars
   # production:
   #   <<: *default

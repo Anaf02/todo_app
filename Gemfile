@@ -40,6 +40,7 @@ gem 'dry-container', '~> 0.11.0'
 gem 'dry-auto_inject', '~> 1.1'
 gem 'dry-matcher', '~> 1.0'
 gem 'dry-system', '~> 1.2', '>= 1.2.2'
+gem 'graphql'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -52,7 +53,6 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem 'rspec-rails'
   gem 'factory_bot_rails'
-  gem 'graphql'
   gem 'graphiql-rails', github: "rmosolgo/graphiql-rails", group: :development
   gem 'pry-rails'
 end
