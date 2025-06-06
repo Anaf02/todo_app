@@ -3,6 +3,7 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
 
   config.hosts << "todo-a-publi-mjhslaykblcm-902164618.eu-central-1.elb.amazonaws.com"
+  config.hosts << "todo-app-8tts.onrender.com"
 
   # Settings specified here will take precedence over those in config/application.rb.
 
