@@ -36,13 +36,14 @@ network:
 
 # Optional fields for more advanced use-cases.
 #
-variables:                    # Pass environment variables as key value pairs.
-  RAILS_ENV: development
+variables: # Pass environment variables as key value pairs.
+  RAILS_ENV: production
 
 secrets: # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
   DATABASE_HOST: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/DATABASE_HOST
   POSTGRES_USERNAME: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/POSTGRES_USERNAME
   POSTGRES_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/POSTGRES_PASSWORD
+  RAILS_MASTER_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/RAILS_MASTER_KEY
 
 # You can override any of the values defined above by environment.
 #environments:

@@ -17,7 +17,7 @@ type: Environment
 #   private:
 
 variables:
-  RAILS_ENV = production
+  RAILS_ENV: production
 
 # Configure observability for your environment resources.
 observability:
