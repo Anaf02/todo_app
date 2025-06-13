@@ -29,6 +29,14 @@ module TodoApp
       current_graphql_field: -> { GraphQL::Current.field&.path },
       current_dataloader_source: -> { GraphQL::Current.dataloader_source_class },
     ]
+
+    # config.hosts << "todo-a-publi-mjhslaykblcm-902164618.eu-central-1.elb.amazonaws.com"
+    # config.hosts << "todo-a-publi-zch9zpbhcfa5-1123118274.eu-central-1.elb.amazonaws.com"
+    config.hosts << "127.0.0.1"
+    config.hosts << "0.0.0.0"
+    config.hosts << /\Atodo-a-publi-.*\.eu-central-1\.elb\.amazonaws\.com\z/
+    config.hosts << /\A10\.0\.\d+\.\d+\:3000\z/
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
 

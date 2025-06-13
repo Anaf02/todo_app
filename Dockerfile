@@ -21,12 +21,12 @@ COPY . .
 # Expose the port Rails runs on
 EXPOSE 3000
 
-# Set environment to development
-ENV RAILS_ENV=development \
-    BUNDLE_WITHOUT=""
-
-# Entry point script
-ENTRYPOINT ["./bin/docker-entrypoint"]
+### Set environment to development
+#ENV RAILS_ENV=development \
+#    BUNDLE_WITHOUT=""
+#
+## Entry point script
+#ENTRYPOINT ["./bin/docker-entrypoint"]
 
 # Start the server
 CMD ["rails", "server", "-b", "0.0.0.0"]

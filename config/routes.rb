@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get '/welcome', to: 'welcome#index'
   resources :todos, only: [:create, :index, :destroy, :update]
   delete '/todos', to: 'todos#delete_all'
+  get "/healthcheck", to: "health#show"
   # Defines the root path route ("/")
   # root "posts#index"
 end
