@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  post "/graphql", to: "graphql#execute"
+  use_doorkeeper
+  devise_for :users, only: []
+ 
   if Rails.env.development?
     mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
   end
@@ -12,6 +14,11 @@ Rails.application.routes.draw do
   resources :todos, only: [:create, :index, :destroy, :update]
   delete '/todos', to: 'todos#delete_all'
   get "/healthcheck", to: "health#show"
+  post "/graphql", to: "graphql#execute"
+  scope "auth" do
+    post "/signup", to: "auth#signup"
+    post "/login", to: "auth#login"
+  end
   # Defines the root path route ("/")
   # root "posts#index"
 end

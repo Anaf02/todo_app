@@ -41,6 +41,8 @@ gem 'dry-auto_inject', '~> 1.1'
 gem 'dry-matcher', '~> 1.0'
 gem 'dry-system', '~> 1.2', '>= 1.2.2'
 gem 'graphql'
+gem 'devise', '~> 4.9', '>= 4.9.4'
+gem 'doorkeeper', '~> 5.8', '>= 5.8.2'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

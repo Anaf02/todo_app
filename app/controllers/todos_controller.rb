@@ -4,6 +4,7 @@ require 'dry/matcher/result_matcher'
 class TodosController < ApplicationController
   include ::ErrorHandlingConcern
   include ::TransactionInputBuilderConcern
+  before_action :doorkeeper_authorize!
 
   def create
     result = Container["transactions.todos.create"]
